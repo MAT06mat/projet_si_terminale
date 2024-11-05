@@ -1,14 +1,12 @@
 import random
-from PIL import Image
-from colr import Colr
 
 COLORS = [
-    (255, 128, 0),  # Orange
-    (0, 255, 0),  # Green
-    (255, 255, 255),  # White
-    (0, 0, 255),  # Blue
-    (255, 255, 0),  # Yellow
-    (255, 0, 0),  # Red
+    "\x1b[38;2;255;128;0m▄\x1b[0m",  # Orange
+    "\x1b[38;2;0;255;0m▄\x1b[0m",  # Green
+    "\x1b[38;2;255;255;255m▄\x1b[0m",  # White
+    "\x1b[38;2;0;0;255m▄\x1b[0m",  # Blue
+    "\x1b[38;2;255;255;0m▄\x1b[0m",  # Yellow
+    "\x1b[38;2;255;0;0m▄\x1b[0m",  # Red
 ]
 
 
@@ -44,7 +42,7 @@ class Cube:
             self.turn(next_turn)
 
     def display(self):
-        img = Image.new("RGB", (15, 11))
+        img = [[" " for i in range(15)] for i in range(11)]
         pos_list = ((4, 0), (0, 4), (4, 4), (8, 4), (12, 4), (4, 8))
         for i in range(6):
             x, y = pos_list[i]
@@ -59,19 +57,18 @@ class Cube:
                 (x, y + 1),
             )
             for z in range(len(pixel_pos_list)):
-                img.putpixel(pixel_pos_list[z], COLORS[self.faces[i][z]])
-            img.putpixel((x + 1, y + 1), COLORS[i])
+                img[pixel_pos_list[z][1]][pixel_pos_list[z][0]] = COLORS[
+                    self.faces[i][z]
+                ]
+            img[y + 1][x + 1] = COLORS[i]
 
         print()
-        for y in range(img.height):
-            for x in range(img.width):
-                r, g, b = img.getpixel((x, y))
-                if r + g + b == 0:
-                    print(" ", end=" ")
-                else:
-                    print(Colr().rgb(r, g, b, "\u2584"), end=" ")
-                if x + 1 == img.width:
-                    print("")
+        for y in range(len(img)):
+            for x in range(len(img[0])):
+                print(img[y][x], end=" ")
+                if x + 1 == len(img[0]):
+                    print()
+        print()
 
     def __change(self, list, new_list):
         list.clear()
