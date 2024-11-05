@@ -1,2 +1,2 @@
-# projet_si_terminale
+# Projet SI de terminale
 Le projet de si pour la terminale
