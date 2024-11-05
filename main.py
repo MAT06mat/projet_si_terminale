@@ -1,4 +1,5 @@
 import random
+from copy import deepcopy
 
 COLORS = [
     "\x1b[38;2;255;128;0m▄\x1b[0m",  # Orange
@@ -10,36 +11,49 @@ COLORS = [
 ]
 
 
-class Cube:
-    def __init__(self, values: list = None):
-        self.orange = []
-        self.green = []
-        self.white = []
-        self.blue = []
-        self.yellow = []
-        self.red = []
-        self.faces = [
-            self.orange,
-            self.green,
-            self.white,
-            self.blue,
-            self.yellow,
-            self.red,
-        ]
-        if not values:
-            values = [i for i in range(6)] * 8
-            values.sort()
+class Face:
+    def __init__(self, color: int):
+        self.color = color
+        self.blocks = [color for i in range(8)]
 
-        for face in range(len(self.faces)):
-            for i in range(8):
-                self.faces[face].append(values[face * 8 + i])
+    def turn(self, number=1):
+        for i in range(number):
+            self.blocks = self.blocks[6:] + self.blocks[:6]
+
+    def get_side(self, side_index) -> list:
+        self.turn(side_index - 1)
+        new_side = self.blocks[:3]
+        self.turn(5 - side_index)
+        return new_side
+
+    def set_side(self, side, new_side):
+        self.turn(side - 1)
+        self.blocks = new_side + self.blocks[3:8]
+        self.turn(5 - side)
+
+    @property
+    def is_solved(self):
+        return all([block == self.color for block in self.blocks])
+
+
+class Cube:
+    def __init__(self):
+        self.faces = [Face(i) for i in range(6)]
+
+    @property
+    def is_solved(self):
+        return all([face.is_solved for face in self.faces])
+
+    def copy(self):
+        return deepcopy(self)
 
     def random(self, number: int = None):
         if not number:
-            number = random.randint(50, 200)
+            number = random.randint(20, 30)
         for i in range(number):
-            next_turn = random.choice(["U", "D", "F", "B", "R", "L"])
-            self.turn(next_turn)
+            move = random.choice(["U", "D", "F", "B", "R", "L"])
+            move = random.choice(["{move}", "2{move}", "{move}'"]).format(move=move)
+            self.turn(move)
 
     def display(self):
         img = [[" " for i in range(15)] for i in range(11)]
@@ -58,9 +72,9 @@ class Cube:
             )
             for z in range(len(pixel_pos_list)):
                 img[pixel_pos_list[z][1]][pixel_pos_list[z][0]] = COLORS[
-                    self.faces[i][z]
+                    self.faces[i].blocks[z]
                 ]
-            img[y + 1][x + 1] = COLORS[i]
+            img[y + 1][x + 1] = COLORS[self.faces[i].color]
 
         print()
         for y in range(len(img)):
@@ -70,32 +84,13 @@ class Cube:
                     print()
         print()
 
-    def __change(self, list, new_list):
-        list.clear()
-        list.extend(new_list)
-
-    def __shift(self, face, number=1):
-        for i in range(number):
-            self.__change(face, face[6:] + face[:6])
-
-    def __get_side(self, face, side) -> list:
-        self.__shift(face, side - 1)
-        new_side = face[:3]
-        self.__shift(face, 5 - side)
-        return new_side
-
-    def __set_side(self, face, side, new_side):
-        self.__shift(face, side - 1)
-        self.__change(face, new_side + face[3:8])
-        self.__shift(face, 5 - side)
-
     def __rotate(self, faces_index: list[int], pos: list[int]):
         """1: UP .... 2: LEFT .... 3: DOWN .... 4: RIGHT"""
 
         faces = [self.faces[i] for i in faces_index]
-        sides = [self.__get_side(faces[i], pos[i]) for i in range(4)]
+        sides = [faces[i].get_side(pos[i]) for i in range(4)]
         for i in range(len(sides)):
-            self.__set_side(faces[i], pos[i], sides[i - 1])
+            faces[i].set_side(pos[i], sides[i - 1])
 
     def turn(self, move: str):
         """NOTATIONS : https://jperm.net/3x3/moves"""
@@ -111,30 +106,24 @@ class Cube:
 
         match move:
             case "U":
-                self.__shift(self.white)
+                self.faces[2].turn()
                 self.__rotate((0, 3, 5, 1), (3, 2, 1, 4))
             case "D":
-                self.__shift(self.yellow)
+                self.faces[4].turn()
                 self.__rotate((0, 1, 5, 3), (1, 2, 3, 4))
             case "F":
-                self.__shift(self.red)
+                self.faces[5].turn()
                 self.__rotate((2, 3, 4, 1), (3, 3, 3, 3))
             case "B":
-                self.__shift(self.orange)
+                self.faces[0].turn()
                 self.__rotate((4, 3, 2, 1), (1, 1, 1, 1))
             case "R":
-                self.__shift(self.blue)
+                self.faces[3].turn()
                 self.__rotate((0, 4, 5, 2), (4, 2, 4, 4))
             case "L":
-                self.__shift(self.green)
+                self.faces[1].turn()
                 self.__rotate((0, 2, 5, 4), (2, 2, 2, 4))
 
 
 cube = Cube()
-# cube.random()
-
-text = ""
-while text.lower() != "exit":
-    cube.display()
-    text = input("Next turn : ")
-    cube.turn(text.upper())
+cube.display()
