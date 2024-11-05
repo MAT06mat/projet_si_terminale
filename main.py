@@ -114,21 +114,21 @@ class Cube:
 
         match move:
             case "U":
-                self.__shift(self.yellow)
-                self.__rotate((0, 1, 5, 3), (1, 2, 3, 4))
-            case "D":
                 self.__shift(self.white)
                 self.__rotate((0, 3, 5, 1), (3, 2, 1, 4))
-            case "R":
+            case "D":
+                self.__shift(self.yellow)
+                self.__rotate((0, 1, 5, 3), (1, 2, 3, 4))
+            case "F":
                 self.__shift(self.red)
                 self.__rotate((2, 3, 4, 1), (3, 3, 3, 3))
-            case "L":
+            case "B":
                 self.__shift(self.orange)
                 self.__rotate((4, 3, 2, 1), (1, 1, 1, 1))
-            case "F":
+            case "R":
                 self.__shift(self.blue)
                 self.__rotate((0, 4, 5, 2), (4, 2, 4, 4))
-            case "B":
+            case "L":
                 self.__shift(self.green)
                 self.__rotate((0, 2, 5, 4), (2, 2, 2, 4))
 
@@ -136,6 +136,8 @@ class Cube:
 cube = Cube()
 # cube.random()
 
-while True:
+text = ""
+while text.lower() != "exit":
     cube.display()
-    cube.turn(input("Next turn : "))
+    text = input("Next turn : ")
+    cube.turn(text.upper())
