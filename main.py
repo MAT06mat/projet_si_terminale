@@ -126,4 +126,3 @@ class Cube:
 
 
 cube = Cube()
-cube.display()
