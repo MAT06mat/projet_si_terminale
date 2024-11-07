@@ -18,7 +18,6 @@ COLORS = {
 class Cube:
     def __init__(self):
         self.f = "UUUUUUUURRRRRRRRFFFFFFFFDDDDDDDDLLLLLLLLBBBBBBBB"
-        # self.faces = "123456781234567812345678123456781234567812345678"
         self.faces_order = "URFDLB"
 
     def from_string(self, s: str):
@@ -42,6 +41,7 @@ class Cube:
                     + s
                     + " does not contain exactly 8 facelets of each color."
                 )
+        self.f = s
         return True
 
     def get_face(self, face):
