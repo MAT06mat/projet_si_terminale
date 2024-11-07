@@ -78,7 +78,7 @@ class Cube:
                     + self.f[i + 8 :]
                 )
 
-    def face_rotate(self, face):
+    def f_rotate(self, face):
         index = self.faces_order.index(face) * 8
         self.f = (
             self.f[:index]
@@ -128,9 +128,9 @@ class Cube:
         f, nb = move
         if nb != "1":
             if nb == "2":
-                self.rotate(f + "1")
+                self.turn(f + "1")
             else:
-                self.rotate(f + "2")
+                self.turn(f + "2")
         table = {
             "U": ("BRFL", "UUUU"),
             "R": ("BDFU", "LRRR"),
@@ -139,10 +139,26 @@ class Cube:
             "L": ("BUFD", "RLLL"),
             "B": ("DRUL", "DRUL"),
         }[f]
-        self.face_rotate(f)
+        self.f_rotate(f)
         sides = [self.get_side(table[0][i], table[1][i]) for i in range(4)]
         for i, f in enumerate(table[0]):
             self.set_side(f, sides[i - 1], table[1][i])
+
+    def control(self):
+        self.display()
+        while True:
+            m = input("Next move: ").upper()
+            if len(m) > 2:
+                m = m[:2]
+            if len(m) == 0:
+                continue
+            if len(m) == 1:
+                m += "1"
+            if m[1] not in "123" or m[0] not in self.faces_order:
+                print(f"Error: {m} is not a valid move")
+                continue
+            self.turn(m)
+            self.display()
 
 
 cube = Cube()
