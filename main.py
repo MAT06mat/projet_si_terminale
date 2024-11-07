@@ -1,63 +1,103 @@
 import random
 from copy import deepcopy
+from time import time
 
-COLORS = [
-    "\x1b[38;2;255;128;0m▄\x1b[0m",  # Orange
-    "\x1b[38;2;0;255;0m▄\x1b[0m",  # Green
-    "\x1b[38;2;255;255;255m▄\x1b[0m",  # White
-    "\x1b[38;2;0;0;255m▄\x1b[0m",  # Blue
-    "\x1b[38;2;255;255;0m▄\x1b[0m",  # Yellow
-    "\x1b[38;2;255;0;0m▄\x1b[0m",  # Red
-]
+# https://github.com/hkociemba/RubiksCube-OptimalSolver
 
 
-class Face:
-    def __init__(self, color: int):
-        self.color = color
-        self.blocks = [color for i in range(8)]
-
-    def turn(self, number=1):
-        for i in range(number):
-            self.blocks = self.blocks[6:] + self.blocks[:6]
-
-    def get_side(self, side_index) -> list:
-        self.turn(side_index - 1)
-        new_side = self.blocks[:3]
-        self.turn(5 - side_index)
-        return new_side
-
-    def set_side(self, side, new_side):
-        self.turn(side - 1)
-        self.blocks = new_side + self.blocks[3:8]
-        self.turn(5 - side)
-
-    @property
-    def is_solved(self):
-        return all([block == self.color for block in self.blocks])
+COLORS = {
+    "U": "\x1b[38;2;255;255;0m▄\x1b[0m",
+    "R": "\x1b[38;2;0;255;0m▄\x1b[0m",
+    "F": "\x1b[38;2;255;0;0m▄\x1b[0m",
+    "D": "\x1b[38;2;255;255;255m▄\x1b[0m",
+    "L": "\x1b[38;2;0;0;255m▄\x1b[0m",
+    "B": "\x1b[38;2;255;128;0m▄\x1b[0m",
+}
 
 
 class Cube:
     def __init__(self):
-        self.faces = [Face(i) for i in range(6)]
+        self.f = "UUUUUUUURRRRRRRRFFFFFFFFDDDDDDDDLLLLLLLLBBBBBBBB"
+        # self.faces = "123456781234567812345678123456781234567812345678"
+        self.faces_order = "URFDLB"
 
-    @property
-    def is_solved(self):
-        return all([face.is_solved for face in self.faces])
+    def from_string(self, s: str):
+        """Construct a facelet cube from a string."""
+        if len(s) < 48:
+            return (
+                "Error: Cube definition string "
+                + s
+                + " contains less than 48 facelets."
+            )
+        elif len(s) > 48:
+            return (
+                "Error: Cube definition string "
+                + s
+                + " contains more than 48 facelets."
+            )
+        for i in self.faces_order:
+            if s.count(i) != 8:
+                return (
+                    "Error: Cube definition string "
+                    + s
+                    + " does not contain exactly 8 facelets of each color."
+                )
+        return True
 
-    def copy(self):
-        return deepcopy(self)
+    def get_face(self, face):
+        index = self.faces_order.index(face)
+        return self.f[index * 8 : (index + 1) * 8]
 
-    def random(self, number: int = None):
-        if not number:
-            number = random.randint(20, 30)
-        for i in range(number):
-            move = random.choice(["U", "D", "F", "B", "R", "L"])
-            move = random.choice(["{move}", "2{move}", "{move}'"]).format(move=move)
-            self.turn(move)
+    def get_side(self, face, side):
+        face = self.get_face(face)
+        match side:
+            case "U":
+                return face[:3]
+            case "R":
+                return face[2:5]
+            case "D":
+                return face[4:7]
+            case "L":
+                return face[6:8] + face[0]
+
+    def set_side(self, face, side, pos):
+        i = self.faces_order.index(face) * 8
+        match pos:
+            case "U":
+                self.f = self.f[:i] + side + self.f[i + 3 :]
+            case "R":
+                self.f = self.f[: i + 2] + side + self.f[i + 5 :]
+            case "D":
+                self.f = self.f[: i + 4] + side + self.f[i + 7 :]
+            case "L":
+                self.f = (
+                    self.f[:i]
+                    + side[2]
+                    + self.f[i + 1 : i + 6]
+                    + side[:2]
+                    + self.f[i + 8 :]
+                )
+
+    def face_rotate(self, face):
+        index = self.faces_order.index(face) * 8
+        self.f = (
+            self.f[:index]
+            + self.f[index + 6 : index + 8]
+            + self.f[index : index + 6]
+            + self.f[index + 8 :]
+        )
+
+    def random(self, nb: int = None):
+        if not nb:
+            nb = random.randint(20, 30)
+        for i in range(nb):
+            f = self.faces_order[random.randint(0, 5)]
+            n = random.randint(1, 3)
+            self.rotate(str(f) + str(n))
 
     def display(self):
         img = [[" " for i in range(15)] for i in range(11)]
-        pos_list = ((4, 0), (0, 4), (4, 4), (8, 4), (12, 4), (4, 8))
+        pos_list = ((4, 0), (8, 4), (4, 4), (4, 8), (0, 4), (12, 4))
         for i in range(6):
             x, y = pos_list[i]
             pixel_pos_list = (
@@ -70,11 +110,11 @@ class Cube:
                 (x, y + 2),
                 (x, y + 1),
             )
+            fc = self.faces_order[i]
+            f = self.get_face(fc)
             for z in range(len(pixel_pos_list)):
-                img[pixel_pos_list[z][1]][pixel_pos_list[z][0]] = COLORS[
-                    self.faces[i].blocks[z]
-                ]
-            img[y + 1][x + 1] = COLORS[self.faces[i].color]
+                img[pixel_pos_list[z][1]][pixel_pos_list[z][0]] = COLORS[f[z]]
+            img[y + 1][x + 1] = COLORS[fc]
 
         print()
         for y in range(len(img)):
@@ -84,45 +124,25 @@ class Cube:
                     print()
         print()
 
-    def __rotate(self, faces_index: list[int], pos: list[int]):
-        """1: UP .... 2: LEFT .... 3: DOWN .... 4: RIGHT"""
-
-        faces = [self.faces[i] for i in faces_index]
-        sides = [faces[i].get_side(pos[i]) for i in range(4)]
-        for i in range(len(sides)):
-            faces[i].set_side(pos[i], sides[i - 1])
-
-    def turn(self, move: str):
-        """NOTATIONS : https://jperm.net/3x3/moves"""
-
-        if move[0] == "2":
-            self.turn(move[-1])
-            self.turn(move[-1])
-            return
-        elif move[-1] == "'":
-            self.turn("2" + move[0])
-            self.turn(move[0])
-            return
-
-        match move:
-            case "U":
-                self.faces[2].turn()
-                self.__rotate((0, 3, 5, 1), (3, 2, 1, 4))
-            case "D":
-                self.faces[4].turn()
-                self.__rotate((0, 1, 5, 3), (1, 2, 3, 4))
-            case "F":
-                self.faces[5].turn()
-                self.__rotate((2, 3, 4, 1), (3, 3, 3, 3))
-            case "B":
-                self.faces[0].turn()
-                self.__rotate((4, 3, 2, 1), (1, 1, 1, 1))
-            case "R":
-                self.faces[3].turn()
-                self.__rotate((0, 4, 5, 2), (4, 2, 4, 4))
-            case "L":
-                self.faces[1].turn()
-                self.__rotate((0, 2, 5, 4), (2, 2, 2, 4))
+    def turn(self, move):
+        f, nb = move
+        if nb != "1":
+            if nb == "2":
+                self.rotate(f + "1")
+            else:
+                self.rotate(f + "2")
+        table = {
+            "U": ("BRFL", "UUUU"),
+            "R": ("BDFU", "LRRR"),
+            "F": ("URDL", "DLUR"),
+            "D": ("BLFR", "DDDD"),
+            "L": ("BUFD", "RLLL"),
+            "B": ("DRUL", "DRUL"),
+        }[f]
+        self.face_rotate(f)
+        sides = [self.get_side(table[0][i], table[1][i]) for i in range(4)]
+        for i, f in enumerate(table[0]):
+            self.set_side(f, sides[i - 1], table[1][i])
 
 
 cube = Cube()
