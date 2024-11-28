@@ -93,7 +93,7 @@ class Cube:
         for i in range(nb):
             f = self.faces_order[random.randint(0, 5)]
             n = random.randint(1, 3)
-            self.rotate(str(f) + str(n))
+            self.turn(str(f) + str(n))
 
     def display(self):
         img = [[" " for i in range(15)] for i in range(11)]
