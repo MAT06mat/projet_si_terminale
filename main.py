@@ -2,8 +2,6 @@ import random
 from copy import deepcopy
 from time import time
 
-# https://github.com/hkociemba/RubiksCube-OptimalSolver
-
 
 COLORS = {
     "U": "\x1b[38;2;255;255;0m▄\x1b[0m",
@@ -43,6 +41,21 @@ class Cube:
                 )
         self.f = s
         return True
+
+    def to_kociemba(self):
+        faces = []
+        for i in range(0, len(self.f), 8):
+            faces.append(self.f[i : i + 8])
+        f = ""
+        for i, face in enumerate(faces):
+            f += face[0:3]
+            f += face[7]
+            f += self.faces_order[i]
+            f += face[3]
+            f += face[6]
+            f += face[5]
+            f += face[4]
+        return f
 
     def get_face(self, face):
         index = self.faces_order.index(face)
@@ -161,4 +174,39 @@ class Cube:
             self.display()
 
 
-cube = Cube()
+from kociemba import solve
+from tqdm import tqdm
+from time import time
+
+t_total = 0
+t_min = 9999
+t_max = 0
+m_total = 0
+m_min = 9999
+m_max = 0
+number = 1000
+for i in tqdm(range(number)):
+    cube = Cube()
+    cube.random(200)
+
+    t1 = time()
+    sol = solve(cube.to_kociemba())
+    t2 = time()
+
+    sol = sol.split(" ")
+
+    t = t2 - t1
+    t_total += t
+    m = len(sol)
+    m_total += m
+
+    t_min = min(t, t_min)
+    t_max = max(t, t_max)
+    m_min = min(m, m_min)
+    m_max = max(m, m_max)
+
+print()
+print("Time average :", t_total / number)
+print("Moves average :", m_total / number)
+print("Time max / min :", t_max, t_min)
+print("Moves max / min :", m_max, m_min)
