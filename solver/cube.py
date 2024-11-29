@@ -117,34 +117,27 @@ class Cube:
     def from_string(self, patternstring: str) -> bool:
         """Construct a cube from a string."""
         if len(patternstring) < 48:
-            print(
-                "Error: Cube definition string "
+            raise ValueError(
+                "Cube definition string "
                 + patternstring
                 + " contains less than 48 facelets."
             )
-            return False
         elif len(patternstring) > 48:
-            print(
-                "Error: Cube definition string "
+            raise ValueError(
+                "Cube definition string "
                 + patternstring
                 + " contains more than 48 facelets."
             )
-            return False
         for i in FACE_ORDER:
             if patternstring.count(i) != 8:
-                print(
-                    "Error: Cube definition string "
+                raise ValueError(
+                    "Cube definition string "
                     + patternstring
                     + " does not contain exactly 8 facelets of each color."
                 )
-                return False
-        try:
-            kociemba.solve(__Cube__(patternstring).to_kociemba())
-        except ValueError as e:
-            print(e)
-            return False
+        # Raise an error if the string is not correct
+        kociemba.solve(__Cube__(patternstring).to_kociemba())
         self.__cube__.cube_string = patternstring
-        return True
 
     def to_string(self, kociemba=False) -> str:
         """Return the string of the cube"""
