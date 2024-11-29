@@ -1,6 +1,6 @@
-import random
-from copy import deepcopy
+import random, kociemba
 from time import time
+from tqdm import tqdm
 
 
 COLORS = {
@@ -42,7 +42,7 @@ class Cube:
         self.f = s
         return True
 
-    def to_kociemba(self):
+    def to_kociemba(self) -> str:
         faces = []
         for i in range(0, len(self.f), 8):
             faces.append(self.f[i : i + 8])
@@ -56,6 +56,11 @@ class Cube:
             f += face[5]
             f += face[4]
         return f
+
+    def solve(self, patternstring: str | None = None, max_depth: int = 24) -> str:
+        if self.f == "UUUUUUUURRRRRRRRFFFFFFFFDDDDDDDDLLLLLLLLBBBBBBBB":
+            return "Already solve"
+        return kociemba.solve(self.to_kociemba(), patternstring, max_depth)
 
     def get_face(self, face):
         index = self.faces_order.index(face)
@@ -138,7 +143,11 @@ class Cube:
         print()
 
     def turn(self, move):
-        f, nb = move
+        if len(move) == 1:
+            f = move
+            nb = "1"
+        else:
+            f, nb = move
         if nb != "1":
             if nb == "2":
                 self.turn(f + "1")
@@ -157,6 +166,39 @@ class Cube:
         for i, f in enumerate(table[0]):
             self.set_side(f, sides[i - 1], table[1][i])
 
+    def test(nb, moves=30):
+        ttot, tmax, mtot, mmax = 0, 0, 0, 0
+        mmin, tmin = 99, 99
+        solves = []
+        for i in tqdm(range(nb)):
+            cube = Cube()
+            cube.random(moves)
+
+            t1 = time()
+            sol = cube.solve()
+            t2 = time()
+
+            sol = sol.split(" ")
+            for s in sol:
+                cube.turn(s)
+            solves.append(cube.f == "UUUUUUUURRRRRRRRFFFFFFFFDDDDDDDDLLLLLLLLBBBBBBBB")
+
+            t = t2 - t1
+            ttot += t
+            m = len(sol)
+            mtot += m
+
+            tmin = min(t, tmin)
+            tmax = max(t, tmax)
+            mmin = min(m, mmin)
+            mmax = max(m, mmax)
+
+        print("Time average :", ttot / nb)
+        print("Moves average :", mtot / nb)
+        print("Time max / min :", tmax, tmin)
+        print("Moves max / min :", mmax, mmin)
+        print("Solves :", solves.count(True), "/", len(solves))
+
     def control(self):
         self.display()
         while True:
@@ -172,41 +214,3 @@ class Cube:
                 continue
             self.turn(m)
             self.display()
-
-
-from kociemba import solve
-from tqdm import tqdm
-from time import time
-
-t_total = 0
-t_min = 9999
-t_max = 0
-m_total = 0
-m_min = 9999
-m_max = 0
-number = 1000
-for i in tqdm(range(number)):
-    cube = Cube()
-    cube.random(200)
-
-    t1 = time()
-    sol = solve(cube.to_kociemba())
-    t2 = time()
-
-    sol = sol.split(" ")
-
-    t = t2 - t1
-    t_total += t
-    m = len(sol)
-    m_total += m
-
-    t_min = min(t, t_min)
-    t_max = max(t, t_max)
-    m_min = min(m, m_min)
-    m_max = max(m, m_max)
-
-print()
-print("Time average :", t_total / number)
-print("Moves average :", m_total / number)
-print("Time max / min :", t_max, t_min)
-print("Moves max / min :", m_max, m_min)
