@@ -44,27 +44,27 @@ class __Cube__:
                 return face[6:8] + face[0]
 
     def set_side(self, face: str, side: str, pos: str) -> None:
-        i = FACE_ORDER.index(face) * 8
+        index = FACE_ORDER.index(face) * 8
         match pos:
             case "U":
                 self.cube_string = (
-                    self.cube_string[:i] + side + self.cube_string[i + 3 :]
+                    self.cube_string[:index] + side + self.cube_string[index + 3 :]
                 )
             case "R":
                 self.cube_string = (
-                    self.cube_string[: i + 2] + side + self.cube_string[i + 5 :]
+                    self.cube_string[: index + 2] + side + self.cube_string[index + 5 :]
                 )
             case "D":
                 self.cube_string = (
-                    self.cube_string[: i + 4] + side + self.cube_string[i + 7 :]
+                    self.cube_string[: index + 4] + side + self.cube_string[index + 7 :]
                 )
             case "L":
                 self.cube_string = (
-                    self.cube_string[:i]
+                    self.cube_string[:index]
                     + side[2]
-                    + self.cube_string[i + 1 : i + 6]
+                    + self.cube_string[index + 1 : index + 6]
                     + side[:2]
-                    + self.cube_string[i + 8 :]
+                    + self.cube_string[index + 8 :]
                 )
 
     def f_rotate(self, face: str) -> None:
