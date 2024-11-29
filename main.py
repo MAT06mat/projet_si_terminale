@@ -195,8 +195,8 @@ class Cube:
 
         print("Time average :", ttot / nb)
         print("Moves average :", mtot / nb)
-        print("Time max / min :", tmax, tmin)
-        print("Moves max / min :", mmax, mmin)
+        print("Time min / max :", tmin, tmax)
+        print("Moves min / max :", mmin, mmax)
         print("Solves :", solves.count(True), "/", len(solves))
 
     def control(self):
