@@ -1,6 +1,6 @@
 from tqdm import tqdm
 from time import time
-from cube import Cube
+from cube import PublicCube
 
 
 def test(nb, moves=30):
@@ -8,7 +8,7 @@ def test(nb, moves=30):
     mmin, tmin = 99, 99
     solves = []
     for i in tqdm(range(nb)):
-        cube = Cube()
+        cube = PublicCube()
         cube.random(moves)
 
         t1 = time()

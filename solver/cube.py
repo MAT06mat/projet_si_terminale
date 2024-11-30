@@ -5,7 +5,7 @@ SOLVED_CUBE_STRING = "UUUUUUUURRRRRRRRFFFFFFFFDDDDDDDDLLLLLLLLBBBBBBBB"
 FACE_ORDER = "URFDLB"
 
 
-class __Cube__:
+class Cube:
     def __init__(self, cube_string=SOLVED_CUBE_STRING) -> None:
         self.cube_string: str = cube_string
 
@@ -107,10 +107,10 @@ class __Cube__:
             self.set_side(f, sides[i - 1], table[1][i])
 
 
-class Cube:
+class PublicCube:
     def __init__(self, patternstring: str | None = None) -> None:
         """Initialize the cube"""
-        self.__cube__ = __Cube__()
+        self.__cube__ = Cube()
         if patternstring:
             self.from_string(patternstring)
 
@@ -136,7 +136,7 @@ class Cube:
                     + " does not contain exactly 8 facelets of each color."
                 )
         # Raise an error if the string is not correct
-        kociemba.solve(__Cube__(patternstring).to_kociemba())
+        kociemba.solve(Cube(patternstring).to_kociemba())
         self.__cube__.cube_string = patternstring
 
     def to_string(self, kociemba=False) -> str:
