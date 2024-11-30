@@ -1,6 +1,4 @@
-from solver import Cube
+from solver import Cube, test
 
-
+test(100)
 c = Cube()
-c.random()
-print(c.solve())
