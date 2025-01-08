@@ -2,6 +2,20 @@ from PIL import Image
 import colorsys
 
 
+class Colors:
+    WHITE = 0
+    YELLOW = 1
+    RED = 2
+    ORANGE = 3
+    BLUE = 4
+    GREEN = 5
+
+    def get_name(color):
+        for key in Colors.__dict__:
+            if Colors.__dict__[key] == color:
+                return key
+
+
 def get_color(img: Image.Image, x: int, y: int, size=20) -> str:
     r, g, b, tot = 0, 0, 0, 0
 
@@ -29,24 +43,25 @@ def get_color(img: Image.Image, x: int, y: int, size=20) -> str:
     # print(f"hsv({h*360}, {s}, {v})")
 
     if s < 0.2:
-        return "WHITE"
+        return Colors.WHITE
     elif h < 0.04:
-        return "RED"
+        return Colors.RED
     elif h < 0.139:
-        return "ORANGE"
+        return Colors.ORANGE
     elif h < 0.194:
-        return "YELLOW"
+        return Colors.YELLOW
     elif h < 0.456:
-        return "GREEN"
+        return Colors.GREEN
     elif h < 0.8:
-        return "BLUE"
+        return Colors.BLUE
     else:
-        return "RED"
+        return Colors.RED
 
 
 img: Image.Image = Image.open("python/image-viewer/img.png")
 
 color = get_color(img, 400, 250)
-print(color)
+name = Colors.get_color_name(color)
+print(name)
 
-img.show()
+# img.show()
