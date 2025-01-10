@@ -1,50 +1,42 @@
-from PIL import Image, ImageTk
+from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
 import colorsys
 
 
-SHAPE_SIZE = 120
-SQUARES_SIZE = 20
-ANALYSER_POS = (400, 230)
-
-X = ANALYSER_POS[0]
-Y = ANALYSER_POS[1]
-
-
-class Colors:
-    WHITE = 0
-    YELLOW = 1
-    RED = 2
-    ORANGE = 3
-    BLUE = 4
-    GREEN = 5
-
-    def to_name(color: int | list | tuple) -> list | str:
-        if type(color) in (list, tuple):
-            return list(map(Colors.to_name, color))
-        for key in Colors.__dict__:
-            if Colors.__dict__[key] == color:
-                return key
-
-
 class Anayser:
+    WHITE = "U"
+    RED = "R"
+    GREEN = "F"
+    YELLOW = "D"
+    ORANGE = "L"
+    BLUE = "B"
+
+    def __init__(self, img: Image.Image, x: int, y: int, shape: int, squares: int):
+        self.img = img
+        self.x = x
+        self.y = y
+        self.shape = shape
+        self.squares = squares
+
     def average_color(self, x: int, y: int) -> tuple[float]:
         r, g, b, tot = 0, 0, 0, 0
 
-        for i in range(x - SQUARES_SIZE, x + SQUARES_SIZE):
-            for j in (y - SQUARES_SIZE, y + SQUARES_SIZE):
+        for i in range(x - self.squares, x + self.squares):
+            for j in (y - self.squares, y + self.squares):
+                if i % 4 == 1:
+                    continue
                 pixel = self.img.getpixel((i, j))
                 r += pixel[0]
                 g += pixel[1]
                 b += pixel[2]
                 tot += 1
 
-        for i in range(-SQUARES_SIZE, SQUARES_SIZE):
-            self.img.putpixel((x + i + 1, y - SQUARES_SIZE), (255, 200, 100))
-            self.img.putpixel((x + i, y + SQUARES_SIZE), (255, 200, 100))
-            self.img.putpixel((x - SQUARES_SIZE, y + i), (255, 200, 100))
-            self.img.putpixel((x + SQUARES_SIZE, y + i + 1), (255, 200, 100))
+        for i in range(-self.squares, self.squares):
+            self.img.putpixel((x + i + 1, y - self.squares), (255, 200, 100))
+            self.img.putpixel((x + i, y + self.squares), (255, 200, 100))
+            self.img.putpixel((x - self.squares, y + i), (255, 200, 100))
+            self.img.putpixel((x + self.squares, y + i + 1), (255, 200, 100))
 
         r /= tot
         g /= tot
@@ -59,27 +51,29 @@ class Anayser:
         # print(f"hsv({h*360}, {s}, {v})")
 
         if s < 0.2:
-            return Colors.WHITE
+            return self.WHITE
         elif h < 0.04:
-            return Colors.RED
+            return self.RED
         elif h < 0.139:
-            return Colors.ORANGE
+            return self.ORANGE
         elif h < 0.194:
-            return Colors.YELLOW
+            return self.YELLOW
         elif h < 0.456:
-            return Colors.GREEN
+            return self.GREEN
         elif h < 0.8:
-            return Colors.BLUE
+            return self.BLUE
         else:
-            return Colors.RED
+            return self.RED
 
-    def face_detection(self):
-        colors = []
+    def analyse(self):
+        colors = ""
         for j in range(-1, 2):
             for i in range(-1, 2):
-                rbg = self.average_color(X + i * SHAPE_SIZE, Y + j * SHAPE_SIZE)
+                rbg = self.average_color(
+                    self.x + i * self.shape, self.y + j * self.shape
+                )
                 name = self.sort_color(*rbg)
-                colors.append(name)
+                colors += name
         return colors
 
     def show(self):
@@ -90,19 +84,9 @@ class Anayser:
         plt.imshow(img)
         plt.show()
 
-    def analyse(self, img: Image.Image, show=True):
-        self.img = img
-
-        colors = self.face_detection()
-        names = Colors.to_name(colors)
-
-        if show:
-            self.show()
-
-        return names
-
 
 if __name__ == "__main__":
     img = Image.open("python/image_viewer/img.png")
-    result = Anayser().analyse(img)
-    print(result)
+    anayser = Anayser(img, 400, 230, 120, 20)
+    print(anayser.analyse())
+    anayser.show()
