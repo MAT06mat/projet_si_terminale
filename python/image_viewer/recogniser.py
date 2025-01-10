@@ -86,6 +86,6 @@ class Anayser:
 
 if __name__ == "__main__":
     img = Image.open("python/image_viewer/img.png")
-    anayser = Anayser(img, 400, 230, 120, 20)
+    anayser = Anayser(img, x=400, y=230, shape=120, squares=20)
     print(anayser.analyse())
     anayser.show()
