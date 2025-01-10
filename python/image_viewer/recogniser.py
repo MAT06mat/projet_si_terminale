@@ -66,15 +66,14 @@ class Anayser:
             return self.RED
 
     def analyse(self):
-        colors = ""
+        faces = ""
         for j in range(-1, 2):
             for i in range(-1, 2):
                 rbg = self.average_color(
                     self.x + i * self.shape, self.y + j * self.shape
                 )
-                name = self.sort_color(*rbg)
-                colors += name
-        return colors
+                faces += self.sort_color(*rbg)
+        return faces
 
     def show(self):
         img = np.asarray(self.img)
