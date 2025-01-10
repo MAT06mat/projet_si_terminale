@@ -4,7 +4,7 @@ import numpy as np
 import colorsys
 
 
-class Anayser:
+class FaceAnayser:
     WHITE = "U"
     RED = "R"
     GREEN = "F"
@@ -65,15 +65,23 @@ class Anayser:
         else:
             return self.RED
 
+    def face_order(self, face: str):
+        f = face[0:3]
+        f += face[5]
+        f += face[6:9][::-1]
+        f += face[3]
+        f = {face[4]: f}
+        return f
+
     def analyse(self):
-        faces = ""
+        face = ""
         for j in range(-1, 2):
             for i in range(-1, 2):
                 rbg = self.average_color(
                     self.x + i * self.shape, self.y + j * self.shape
                 )
-                faces += self.sort_color(*rbg)
-        return faces
+                face += self.sort_color(*rbg)
+        return self.face_order(face)
 
     def show(self):
         img = np.asarray(self.img)
@@ -86,6 +94,6 @@ class Anayser:
 
 if __name__ == "__main__":
     img = Image.open("python/image_viewer/img.png")
-    anayser = Anayser(img, x=400, y=230, shape=120, squares=20)
+    anayser = FaceAnayser(img, x=400, y=230, shape=120, squares=20)
     print(anayser.analyse())
     anayser.show()
