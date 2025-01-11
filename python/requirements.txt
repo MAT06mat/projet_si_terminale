@@ -1,3 +1,4 @@
 tqdm
 kociemba
 Pillow
+matplotlib
