@@ -4,7 +4,7 @@ import numpy as np
 import colorsys
 
 
-class FaceAnayser:
+class FaceAnalyser:
     WHITE = "U"
     RED = "R"
     GREEN = "F"
@@ -90,10 +90,3 @@ class FaceAnayser:
         fig.set_figheight(8)
         plt.imshow(img)
         plt.show()
-
-
-if __name__ == "__main__":
-    img = Image.open("python/image_viewer/img.png")
-    anayser = FaceAnayser(img, x=400, y=230, shape=120, squares=20)
-    print(anayser.analyse())
-    anayser.show()
