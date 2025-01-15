@@ -2,3 +2,4 @@ tqdm
 kociemba
 Pillow
 matplotlib
+python-dotenv

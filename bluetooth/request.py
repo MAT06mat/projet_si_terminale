@@ -5,15 +5,15 @@ class Request:
     callbacks = {}
 
     def call(fname, *args):
-        return Request.encode({"call": {"fname": fname, "args": args}})
+        return Request.encode({"CALL": {"fname": fname, "args": args}})
 
     def get(var, callback):
         fid = id(callback)
         Request.callbacks[fid] = fid
-        return Request.encode({"get": {"var": var, "fid": fid}})
+        return Request.encode({"GET": {"var": var, "fid": fid}})
 
     def set(var, value):
-        return Request.encode({"set": {"var": var, "value": value}})
+        return Request.encode({"SET": {"var": var, "value": value}})
 
     def encode(obj):
         return json.dumps(obj).encode("utf-8")

@@ -1,8 +1,11 @@
-import socket
+import socket, dotenv, os
 from request import Request
 
-ADRESSE = ""
-PORT = 4
+dotenv.load_dotenv()
+
+
+ADRESSE = os.getenv("ADRESSE")
+PORT = os.getenv("PORT")
 
 
 class Bluetooth:
@@ -14,6 +17,7 @@ class Bluetooth:
         )
         self.socket.setblocking(False)
         self.client = None
+        self.connected = False
 
         self.a = 1
         self.b = 5
@@ -36,27 +40,37 @@ class Bluetooth:
         self.client, addr = self.socket.accept()
         print("server-connected")
 
+    def client_deconnect(self):
+        self.send(Request.encode({"DECONNECT"}))
+        self.client.close()
+
     def recv(self):
         if not self.client:
             return
-        data = self.client.recv(1024)
+        data = self.client.recv(4096)
+        if not data:
+            return
         json = Request.decode(data)
 
-        if "call" in json:
-            if json["call"]["fname"] in self.public_vars:
-                func = self.__getattribute__(json["call"]["fname"])
-                func(*json["call"]["args"])
+        if "CALL" in json:
+            if json["CALL"]["fname"] in self.public_vars:
+                func = self.__getattribute__(json["CALL"]["fname"])
+                func(*json["CALL"]["args"])
 
-        if "get" in json:
-            if json["get"]["var"] in self.public_vars:
-                fid = json["get"]["fid"]
-                value = self.__getattribute__(json["get"]["var"])
+        if "GET" in json:
+            if json["GET"]["var"] in self.public_vars:
+                fid = json["GET"]["fid"]
+                value = self.__getattribute__(json["GET"]["var"])
                 request = Request.call("callback", fid, value)
                 self.send(request)
 
-        if "set" in json:
-            if json["set"]["var"] in self.public_vars:
-                self.__setattr__(json["set"]["var"], json["set"]["value"])
+        if "SET" in json:
+            if json["SET"]["var"] in self.public_vars:
+                self.__setattr__(json["SET"]["var"], json["SET"]["value"])
+
+        if "DECONNECT" in json:
+            self.client.close()
+            self.client = None
 
     def callback(self, *args):
         Request.callback(*args)
