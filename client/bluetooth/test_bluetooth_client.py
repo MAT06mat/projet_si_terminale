@@ -1,16 +1,19 @@
-from bluetooth.bluetooth import Bluetooth, Request
+from bluetooth.bluetooth import Client, Request
 from time import sleep
 
 
 def main():
-    client = Bluetooth()
-    client.client_connect()
+    client = Client()
+    client.connect()
 
+    client.send(Request.get("a", print))
+    client.send(Request.get("b", print))
+    client.send(Request.get("loop", print))
     client.send(Request.get("d", print))
 
-    sleep(1)
+    sleep(2)
 
-    client.client_deconnect()
+    client.deconnect()
 
     print("progamme end")
 

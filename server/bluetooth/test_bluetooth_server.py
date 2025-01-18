@@ -1,16 +1,16 @@
-from bluetooth.bluetooth import Bluetooth
+from bluetooth.bluetooth import Server
 from time import sleep
 
 
 def main():
-    server = Bluetooth()
-    server.server_connect()
+    server = Server()
+    server.connect()
 
-    for i in range(3):
+    for i in range(30):
         print(i)
         sleep(1)
 
-    server.server_deconnect()
+    server.deconnect()
 
     print("programme end")
 
