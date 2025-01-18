@@ -1,4 +1,4 @@
-from bluetooth.bluetooth import Server
+from bluetooth import Server
 from time import sleep
 
 

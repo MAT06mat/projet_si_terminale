@@ -12,7 +12,7 @@ REQUEST_LENGHT = 512
 Request.REQUEST_LENGHT = REQUEST_LENGHT
 
 
-class Bluetooth:
+class SocketConnection:
     public_vars = ["callback", "a", "b", "c", "d"]
     is_server = False
 
@@ -74,7 +74,7 @@ class Bluetooth:
             pass
 
 
-class Client(Bluetooth):
+class Client(SocketConnection):
     is_server = False
 
     def connect(self):
@@ -89,7 +89,7 @@ class Client(Bluetooth):
         self.client.close()
 
 
-class Server(Bluetooth):
+class Server(SocketConnection):
     is_server = True
 
     def connect(self):

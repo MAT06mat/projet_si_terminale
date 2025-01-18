@@ -1,4 +1,4 @@
-from bluetooth.bluetooth import Client, Request
+from bluetooth import Client, Request
 from time import sleep
 
 
