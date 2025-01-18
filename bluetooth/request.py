@@ -9,7 +9,7 @@ class Request:
 
     def get(var, callback):
         fid = id(callback)
-        Request.callbacks[fid] = fid
+        Request.callbacks[fid] = callback
         return Request.encode({"GET": {"var": var, "fid": fid}})
 
     def set(var, value):
