@@ -1,0 +1,14 @@
+<MainMenu@BoxLayout>:
+    orientation: "vertical"
+    Label:
+        text: "Rubik's Cube Master"
+        font_size: 30
+    Button:
+        text: "Exit"
+        on_press: app.stop()
+
+<MyScreenManager>:
+    Screen:
+        name: "MainMenu"
+        MainMenu:
+            id: main_menu
