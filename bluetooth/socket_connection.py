@@ -1,5 +1,5 @@
 import socket
-from request import Request
+from bluetooth.request import Request
 
 
 class SocketConnection:

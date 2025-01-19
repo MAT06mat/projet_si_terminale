@@ -1,4 +1,4 @@
-from socket_connection import SocketConnection
+from bluetooth.socket_connection import SocketConnection
 from jnius import autoclass
 import threading
 
