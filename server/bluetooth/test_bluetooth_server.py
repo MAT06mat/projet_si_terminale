@@ -7,7 +7,7 @@ def main():
     ADDRESSE = os.getenv("ADRESSE")
     PORT = os.getenv("PORT")
 
-    server = Server(ADDRESSE, int(PORT))
+    server = Server(ADDRESSE, int(PORT), bluetooth=False)
     server.connect()
 
     for i in range(30):

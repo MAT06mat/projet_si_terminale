@@ -7,7 +7,7 @@ def main():
     ADRESSE = os.getenv("ADRESSE")
     PORT = os.getenv("PORT")
 
-    client = Client(ADRESSE, int(PORT))
+    client = Client(ADRESSE, int(PORT), bluetooth=False)
     client.connect()
 
     client.send(Request.get("a", print))

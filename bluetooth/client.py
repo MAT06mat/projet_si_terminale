@@ -3,8 +3,6 @@ import threading
 
 
 class Client(SocketConnection):
-    is_server = False
-
     def connect(self):
         # Connect to server
         if self.client:

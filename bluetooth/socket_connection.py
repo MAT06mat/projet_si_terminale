@@ -1,12 +1,13 @@
 import socket
-from bluetooth.request import Request
+from request import Request
 
 
 class SocketConnection:
     public_vars = ["callback"]
     is_server = False
+    is_android = False
 
-    def __init__(self, address, port, request_lenght=512):
+    def __init__(self, address, port, bluetooth=True, request_lenght=512):
         self.address = address
         self.port = port
 
@@ -15,11 +16,20 @@ class SocketConnection:
         Request.REQUEST_LENGHT = request_lenght
 
         # Initialize socket and connection variables
-        self.socket = socket.socket(
-            socket.AF_INET, socket.SOCK_STREAM  # , socket.BTPROTO_RFCOMM
-        )
+        self.is_android = False
+        if bluetooth and hasattr(socket, "AF_BLUETOOTH"):
+            self.socket = socket.socket(
+                socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM
+            )
+        elif not bluetooth:
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        else:
+            self.is_android = True
+            self.socket = None
+            self.recv_stream = None
+            self.send_stream = None
+
         self.client = None
-        self.connected = False
         self.is_server_connected = False
 
     def loop(self):
@@ -31,7 +41,7 @@ class SocketConnection:
                 if not self.client and self.is_server:
                     self.client, addr = self.socket.accept()
                 # Receive data from client
-                buffer += self.client.recv(self.request_lenght * 8)
+                buffer += self.recv(self.request_lenght * 8)
             except (ConnectionAbortedError, OSError) as e:
                 if self.is_server_connected:
                     self.client = None
@@ -67,8 +77,11 @@ class SocketConnection:
         # Handle callback
         Request.callback(*args)
 
+    def recv(self, bufsize):
+        self.client.recv(bufsize)
+
     def send(self, request):
-        # Send request to client
+        # Send request to client or the server
         try:
             self.client.send(request)
         except ConnectionResetError:
