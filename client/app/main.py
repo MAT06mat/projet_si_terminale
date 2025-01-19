@@ -4,6 +4,7 @@ if __name__ == "__main__":
     from kivy.app import App
     from kivy.properties import ObjectProperty
     from screens.navigation_screen_manager import NavigationScreenManager
+    from kivy.core.window import Window
 
     class MyScreenManager(NavigationScreenManager):
         pass
@@ -13,6 +14,7 @@ if __name__ == "__main__":
         icon = "assets/images/app/logo.png"
 
         def build(self):
+            Window.clearcolor = (1, 1, 1, 1)
             self.manager = MyScreenManager()
             return self.manager
 
