@@ -3,7 +3,7 @@ import json
 
 class Request:
     callbacks = []
-    REQUEST_LENGHT = 64
+    REQUEST_LENGHT = 512
 
     def call(fname, *args):
         # Create a CALL request

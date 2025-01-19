@@ -1,9 +1,13 @@
 from bluetooth import Server
 from time import sleep
+import dotenv, os
 
 
 def main():
-    server = Server()
+    ADDRESSE = os.getenv("ADRESSE")
+    PORT = os.getenv("PORT")
+
+    server = Server(ADDRESSE, int(PORT))
     server.connect()
 
     for i in range(30):
@@ -16,4 +20,5 @@ def main():
 
 
 if __name__ == "__main__":
+    dotenv.load_dotenv()
     main()

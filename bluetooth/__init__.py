@@ -1,6 +1,6 @@
-from bluetooth.bluetooth import Client, Server
 from bluetooth.request import Request
-
+from bluetooth.client import Client
+from bluetooth.server import Server
 
 __all__ = (
     Request.__name__,

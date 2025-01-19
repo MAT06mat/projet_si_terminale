@@ -1,9 +1,13 @@
 from bluetooth import Client, Request
 from time import sleep
+import dotenv, os
 
 
 def main():
-    client = Client()
+    ADRESSE = os.getenv("ADRESSE")
+    PORT = os.getenv("PORT")
+
+    client = Client(ADRESSE, int(PORT))
     client.connect()
 
     client.send(Request.get("a", print))
@@ -19,4 +23,5 @@ def main():
 
 
 if __name__ == "__main__":
+    dotenv.load_dotenv()
     main()
