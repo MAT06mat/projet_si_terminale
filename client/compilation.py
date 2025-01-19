@@ -25,7 +25,7 @@ from app.main import __version__
 
 print(f"\n\n{Style.BRIGHT}{Fore.GREEN}#     Compilation finished !\n{Fore.BLACK}#")
 
-rep = input("Do you want a copy out of the vm ? (y/n)")
+rep = input("Do you want a copy out of the vm ? (y/n) ")
 if rep.lower() == "y":
     os.system(
         f"cp -R ./bin/rcm-{__version__}-armeabi-v7a_arm64-v8a-debug.apk /mnt/rcm/rcm-{__version__}-armeabi-v7a_arm64-v8a-debug.apk"
