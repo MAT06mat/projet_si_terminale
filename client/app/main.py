@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     class RubiksCubeMasterApp(App):
         manager = ObjectProperty(None)
-        icon = "assets/images/app/logo.png"
+        icon = "assets/images/logo.png"
 
         def build(self):
             Window.clearcolor = (1, 1, 1, 1)
