@@ -1,6 +1,5 @@
 import sys, os
 from colorama import init, Fore, Style
-from app.main import __version__
 
 
 # Init Colorama
@@ -16,16 +15,18 @@ commands = (
     "rm -rf app",
     'echo "Update..."',
     "mkdir app",
-    "cp -R /mnt/Shared/app/. app/.",
+    "cp -R /mnt/rcm/app/. app/.",
     "rm -rf buildozer.spec",
-    "cp -R /mnt/Shared/buildozer.spec buildozer.spec",
-    'echo "Update of buildozer.spec and app/ completed"'
+    "cp -R /mnt/rcm/buildozer.spec buildozer.spec",
+    'echo "Update of buildozer.spec and app/ completed"',
     "buildozer --verbose android debug",
 )
 
 for command in commands:
     os.system(command)
 
+from app.main import __version__
+
 print(
-    f"\n\n{Style.BRIGHT}{Fore.GREEN}#     Compilation finished (debug) !\n{Fore.BLACK}#     File rcm-{__version__}-armeabi-v7a_arm64-v8a-debug.apk is available in /bin directory !"
+    f"\n\n{Style.BRIGHT}{Fore.GREEN}#     Compilation finished !\n{Fore.BLACK}#     File rcm-{__version__}-armeabi-v7a_arm64-v8a-debug.apk is available in /bin directory !"
 )
