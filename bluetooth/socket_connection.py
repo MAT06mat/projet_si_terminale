@@ -41,27 +41,27 @@ class SocketConnection:
 
             # Process received data
             while len(buffer) >= self.request_lenght:
-                json = Request.decode(buffer[: self.request_lenght])
+                request = Request.decode(buffer[: self.request_lenght])
                 buffer = buffer[self.request_lenght :]
 
                 # Handle CALL requests
-                if "CALL" in json:
-                    if json["CALL"]["fname"] in self.public_vars:
-                        func = self.__getattribute__(json["CALL"]["fname"])
-                        func(*json["CALL"]["args"])
+                if "CALL" in request:
+                    if request["CALL"]["fname"] in self.public_vars:
+                        func = self.__getattribute__(request["CALL"]["fname"])
+                        func(*request["CALL"]["args"])
 
                 # Handle GET requests
-                if "GET" in json:
-                    if json["GET"]["var"] in self.public_vars:
-                        fid = json["GET"]["fid"]
-                        value = self.__getattribute__(json["GET"]["var"])
+                if "GET" in request:
+                    if request["GET"]["var"] in self.public_vars:
+                        fid = request["GET"]["fid"]
+                        value = self.__getattribute__(request["GET"]["var"])
                         request = Request.call("callback", fid, value)
                         self.send(request)
 
                 # Handle SET requests
-                if "SET" in json:
-                    if json["SET"]["var"] in self.public_vars:
-                        self.__setattr__(json["SET"]["var"], json["SET"]["value"])
+                if "SET" in request:
+                    if request["SET"]["var"] in self.public_vars:
+                        self.__setattr__(request["SET"]["var"], request["SET"]["value"])
 
     def callback(self, *args):
         # Handle callback
