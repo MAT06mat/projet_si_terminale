@@ -4,10 +4,10 @@ import dotenv, os
 
 
 def main():
-    ADRESSE = os.getenv("ADRESSE")
+    ADDRESSE = os.getenv("ADRESSE")
     PORT = os.getenv("PORT")
 
-    client = Client(ADRESSE, int(PORT), bluetooth=False)
+    client = Client(ADDRESSE, int(PORT), bluetooth=False)
     client.connect()
 
     client.send(Request.get("a", print))

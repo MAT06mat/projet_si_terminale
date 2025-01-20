@@ -5,7 +5,6 @@ from bluetooth.request import Request
 class SocketConnection:
     public_vars = ["callback"]
     is_server = False
-    is_android = False
 
     def __init__(self, address, port, bluetooth=True, request_lenght=512):
         self.address = address
@@ -16,7 +15,6 @@ class SocketConnection:
         Request.REQUEST_LENGHT = request_lenght
 
         # Initialize socket and connection variables
-        self.is_android = False
         if bluetooth and hasattr(socket, "AF_BLUETOOTH"):
             self.socket = socket.socket(
                 socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM
@@ -24,7 +22,6 @@ class SocketConnection:
         elif not bluetooth:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         else:
-            self.is_android = True
             self.socket = None
             self.recv_stream = None
             self.send_stream = None

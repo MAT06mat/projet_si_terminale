@@ -16,10 +16,6 @@ os.system("rm -rf bluetooth")
 print("Update ...")
 os.system("mkdir app")
 os.system("cp -R /mnt/rcm/app/. app/.")
-os.system("mkdir bluetooth")
-os.system("cp -R /mnt/rcm/bluetooth/. bluetooth/.")
-os.system("rm -rf .env")
-os.system("cp -R /mnt/rcm/.env .env")
 os.system("rm -rf buildozer.spec")
 os.system("cp -R /mnt/rcm/buildozer.spec buildozer.spec")
 print("Update of buildozer.spec and app/ completed")
@@ -28,7 +24,7 @@ print("Update of buildozer.spec and app/ completed")
 os.system("buildozer --verbose android debug")
 from app.main import __version__
 
-print(f"\n\n{Style.BRIGHT}{Fore.GREEN}#     Compilation finished !\n{Fore.BLACK}#")
+print(f"\n\n{Style.BRIGHT}{Fore.GREEN}#     Compilation finished !\n\n{Fore.BLACK}")
 
 rep = input("Do you want a copy out of the vm ? (y/n) ")
 if rep.lower() == "y":

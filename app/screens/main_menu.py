@@ -2,10 +2,6 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty
 from kivy.clock import Clock
 from kivy.lang import Builder
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 
 Builder.load_file("screens/main_menu.kv")
@@ -16,22 +12,18 @@ class MainMenu(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        Clock.schedule_once(self.test1, 3)
+        Clock.schedule_once(self.test, 3)
 
-    def test1(self, *args):
-        self.text += "\n-> test 1"
+    def test(self, *args):
+        self.text += "\n-> test"
         try:
-            from bluetooth import Client, Request
+            from bluetooth import Client
+
+            client = Client("b4:8c:9d:51:83:76", 4)
+            state = client.connect()
+
+            self.text += f"\nconnection = {str(state)}"
 
             self.text += "\ntest passed"
         except Exception as e:
             self.text += f"\n{e}"
-
-    def test2(self, *args):
-        pass
-
-    def test3(self, *args):
-        pass
-
-    def test4(self, *args):
-        pass

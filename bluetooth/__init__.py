@@ -2,10 +2,10 @@ import socket
 from bluetooth.request import Request
 from bluetooth.server import Server
 
-if hasattr(socket, "AF_BLUETOOTH"):
-    from bluetooth.client import Client
-else:
+if not hasattr(socket, "AF_BLUETOOTH"):
     from bluetooth.android_client import AndroidClient as Client
+else:
+    from bluetooth.client import Client
 
 __all__ = (
     Request.__name__,
