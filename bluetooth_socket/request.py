@@ -20,6 +20,7 @@ class Request:
         return Request.encode({"SET": {"var": var, "value": value}})
 
     def encode(obj):
+        print("Send :", obj)
         # Encode the request as a JSON string and pad it to REQUEST_LENGHT
         binary = json.dumps(obj).encode("utf-8")
         fill = Request.REQUEST_LENGHT - len(binary)

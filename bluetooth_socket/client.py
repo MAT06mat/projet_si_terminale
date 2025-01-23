@@ -1,4 +1,4 @@
-from bluetooth.socket_connection import SocketConnection
+from bluetooth_socket.socket_connection import SocketConnection
 import threading
 
 

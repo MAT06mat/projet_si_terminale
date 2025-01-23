@@ -3,10 +3,14 @@
     Label:
         text: "Rubik's Cube Master"
         color: 0, 0, 0, 1
+        size_hint: 1, 0.2
         font_size: root.width / 15
     Label:
         text: root.text
         color: 0, 0, 0, 1
+        size_hint: 1, 0.6
+        text_size: self.size
     Button:
         text: "Exit"
+        size_hint: 1, 0.2
         on_press: app.stop()

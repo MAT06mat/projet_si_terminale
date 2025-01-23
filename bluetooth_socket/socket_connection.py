@@ -1,12 +1,13 @@
+from bluetooth_socket.request import Request
 import socket
-from bluetooth.request import Request
 
 
 class SocketConnection:
     public_vars = ["callback"]
     is_server = False
+    uuid = "00001101-0000-1000-8000-00805F9B34FB"
 
-    def __init__(self, address, port, bluetooth=True, request_lenght=512):
+    def __init__(self, address, port=4, bluetooth=True, request_lenght=512):
         self.address = address
         self.port = port
 
@@ -16,9 +17,8 @@ class SocketConnection:
 
         # Initialize socket and connection variables
         if bluetooth and hasattr(socket, "AF_BLUETOOTH"):
-            self.socket = socket.socket(
-                socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM
-            )
+            from bluetooth import BluetoothSocket, RFCOMM
+            self.socket = BluetoothSocket(RFCOMM)
         elif not bluetooth:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         else:
@@ -37,8 +37,11 @@ class SocketConnection:
                 # Accept client connection if server
                 if not self.client and self.is_server:
                     self.client, addr = self.socket.accept()
+                    print("Client socket accepted as", addr)
                 # Receive data from client
-                buffer += self.recv(self.request_lenght * 8)
+                data = self.recv(self.request_lenght * 8)
+                if data:
+                    buffer += data
             except (ConnectionAbortedError, OSError) as e:
                 if self.is_server_connected:
                     self.client = None
@@ -62,8 +65,8 @@ class SocketConnection:
                     if request["GET"]["var"] in self.public_vars:
                         fid = request["GET"]["fid"]
                         value = self.__getattribute__(request["GET"]["var"])
-                        request = Request.call("callback", fid, value)
-                        self.send(request)
+                        response = Request.call("callback", fid, value)
+                        self.send(response)
 
                 # Handle SET requests
                 if "SET" in request:
@@ -75,7 +78,7 @@ class SocketConnection:
         Request.callback(*args)
 
     def recv(self, bufsize):
-        self.client.recv(bufsize)
+        return self.client.recv(bufsize)
 
     def send(self, request):
         # Send request to client or the server

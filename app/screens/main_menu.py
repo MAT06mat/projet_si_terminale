@@ -1,6 +1,5 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty
-from kivy.clock import Clock
 from kivy.lang import Builder
 
 
@@ -12,18 +11,11 @@ class MainMenu(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        Clock.schedule_once(self.test, 3)
-
-    def test(self, *args):
-        self.text += "\n-> test"
+        self.text += f'\ntry start'
         try:
-            from bluetooth import Client
-
-            client = Client("b4:8c:9d:51:83:76", 4)
-            state = client.connect()
-
-            self.text += f"\nconnection = {str(state)}"
-
-            self.text += "\ntest passed"
+            from backend import Client
+            client = Client("00:1a:7d:da:71:15")
+            client.connect()
+            self.text += f'\ntry end'
         except Exception as e:
-            self.text += f"\n{e}"
+            self.text += f'\nexception : {e}'

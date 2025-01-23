@@ -1,5 +1,5 @@
 from android.permissions import request_permissions, check_permission, Permission
-from bluetooth.socket_connection import SocketConnection
+from bluetooth_socket.socket_connection import SocketConnection
 from jnius import autoclass
 
 import threading
@@ -19,14 +19,13 @@ class AndroidClient(SocketConnection):
         )
         self.socket = None
         for device in paired_devices:
-            if device.getAddress() == self.address:
+            if device.getAddress().upper() == self.address.upper():
                 # Create a socket to the device
                 self.socket = device.createRfcommSocketToServiceRecord(
                     UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
                 )
                 self.send_stream = self.socket.getOutputStream()
-                reader = InputStreamReader(self.socket.getInputStream(), "UTF-8")
-                self.recv_stream = BufferedReader(reader)
+                self.recv_stream = self.socket.getInputStream()
                 break
 
     def connect(self):
@@ -34,12 +33,12 @@ class AndroidClient(SocketConnection):
         if not self.socket:
             if not check_permission(Permission.BLUETOOTH_CONNECT):
                 request_permissions([Permission.BLUETOOTH_CONNECT])
+                return
             self.android_get_socket_stream()
             if not self.socket:
-                return False
+                return
             self.socket.connect()
             threading.Thread(target=self.loop).start()
-            return True
 
     def deconnect(self):
         # Disconnect from server
@@ -49,15 +48,18 @@ class AndroidClient(SocketConnection):
             self.recv_stream = None
             self.send_stream = None
 
-    def recv(self, bufsize):
+    def recv(self, _):
         # Receive data from the server
-        ready_to_read = self.recv_stream.ready()
-        if not ready_to_read:
-            return b""
-        data = self.recv_stream.read(bufsize)
-        return data.encode("utf-8")
+        if self.recv_stream:
+            ready = self.recv_stream.available()
+            if ready <= 0:
+                return b""
+            buffer = bytearray(ready)
+            self.recv_stream.read(buffer)
+            return bytes(buffer)
 
     def send(self, request):
         # Send request to server
-        self.send_stream.write(request)
-        self.send_stream.flush()
+        if self.send_stream:
+            self.send_stream.write(request)
+            self.send_stream.flush()
