@@ -1,5 +1,5 @@
 from android.permissions import request_permissions, check_permission, Permission
-from bluetooth_socket.socket_connection import SocketConnection
+from mods.bluetooth_socket.client import Client
 from jnius import autoclass
 
 import threading
@@ -7,11 +7,11 @@ import threading
 
 BluetoothAdapter = autoclass("android.bluetooth.BluetoothAdapter")
 InputStreamReader = autoclass("java.io.InputStreamReader")
-BufferedReader = autoclass("java.io.BufferedReader")
+BufferedReader = autoclass("android.permissions.BufferedReader")
 UUID = autoclass("java.util.UUID")
 
 
-class AndroidClient(SocketConnection):
+class AndroidClient(Client):
     def android_get_socket_stream(self):
         # Get the paired Bluetooth devices
         paired_devices = (
@@ -38,12 +38,14 @@ class AndroidClient(SocketConnection):
             if not self.socket:
                 return
             self.socket.connect()
+            self.connected = True
             threading.Thread(target=self.loop).start()
 
     def deconnect(self):
         # Disconnect from server
         if self.socket:
             self.socket.close()
+            self.connected = False
             self.socket = None
             self.recv_stream = None
             self.send_stream = None

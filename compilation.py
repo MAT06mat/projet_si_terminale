@@ -12,10 +12,11 @@ if sys.platform not in ("linux", "linux2"):
 # Update code on vm
 os.system("rm -rf bin")
 os.system("rm -rf app")
-os.system("rm -rf bluetooth")
 print("Update ...")
 os.system("mkdir app")
 os.system("cp -R /mnt/rcm/app/. app/.")
+os.system("mkdir app/mods")
+os.system("cp -R /mnt/rcm/mods/. app/mods/.")
 os.system("rm -rf buildozer.spec")
 os.system("cp -R /mnt/rcm/buildozer.spec buildozer.spec")
 print("Update of buildozer.spec and app/ completed")

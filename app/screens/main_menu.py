@@ -11,11 +11,12 @@ class MainMenu(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.text += f'\ntry start'
+        self.text += f"\ntry start"
         try:
-            from backend import Client
-            client = Client("00:1a:7d:da:71:15")
+            from imports import bluetooth_socket as bs
+
+            client = bs.Client("00:1a:7d:da:71:15")
             client.connect()
-            self.text += f'\ntry end'
+            self.text += f"\ntry end"
         except Exception as e:
-            self.text += f'\nexception : {e}'
+            self.text += f"\nexception : {e}"
