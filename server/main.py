@@ -21,9 +21,9 @@ def test_bluetooth():
     server = bs.Server()
     server.connect()
 
-    for i in range(4):
+    for i in range(3):
         print(i)
-        sleep(3)
+        sleep(10)
 
     server.deconnect()
 
@@ -31,5 +31,5 @@ def test_bluetooth():
 if __name__ == "__main__":
     # test_cube()
     # test_image_analyser()
-    # test_bluetooth()
+    test_bluetooth()
     pass

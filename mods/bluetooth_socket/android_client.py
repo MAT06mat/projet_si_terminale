@@ -7,7 +7,7 @@ import threading
 
 BluetoothAdapter = autoclass("android.bluetooth.BluetoothAdapter")
 InputStreamReader = autoclass("java.io.InputStreamReader")
-BufferedReader = autoclass("android.permissions.BufferedReader")
+BufferedReader = autoclass("java.io.BufferedReader")
 UUID = autoclass("java.util.UUID")
 
 
