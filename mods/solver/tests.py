@@ -1,6 +1,6 @@
+from mods.solver.cube import PublicCube
 from tqdm import tqdm
 from time import time
-from solver.cube import PublicCube
 
 
 def test(nb, moves=30):

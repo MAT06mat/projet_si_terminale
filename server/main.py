@@ -1,15 +1,15 @@
 def test_cube():
-    from solver import Cube, test
+    from imports import solver as s
 
-    test(100)
-    c = Cube()
+    s.test(100)
+    c = s.Cube()
 
 
 def test_image_analyser():
-    from analyser import FaceAnalyser, Image
+    from imports import analyser as a
 
-    img = Image.open("server/analyser/img.png")
-    anayser = FaceAnalyser(img, x=400, y=230, shape=120, squares=20)
+    img = a.Image.open("mods/analyser/img.png")
+    anayser = a.FaceAnalyser(img, x=400, y=230, shape=120, squares=20)
     print(anayser.analyse())
     anayser.show()
 
@@ -23,7 +23,7 @@ def test_bluetooth():
 
     for i in range(4):
         print(i)
-        sleep(5)
+        sleep(3)
 
     server.deconnect()
 

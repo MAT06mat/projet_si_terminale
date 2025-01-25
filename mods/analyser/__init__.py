@@ -1,4 +1,4 @@
-from analyser.face_analyser import FaceAnalyser
+from mods.analyser.face_analyser import FaceAnalyser
 from PIL import Image
 
 __all__ = [
