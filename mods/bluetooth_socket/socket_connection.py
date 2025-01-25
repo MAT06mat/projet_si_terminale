@@ -1,8 +1,8 @@
 from mods.bluetooth_socket.request import Request
-import socket
+from abc import ABC, abstractmethod
 
 
-class SocketConnection:
+class SocketConnection(ABC):
     public_vars = ["callback"]
     is_server = False
     uuid = "00001101-0000-1000-8000-00805F9B34FB"
@@ -12,6 +12,7 @@ class SocketConnection:
         self.request_lenght = request_lenght
         Request.REQUEST_LENGHT = request_lenght
 
+    @abstractmethod
     def loop(self):
         pass
 
@@ -44,5 +45,6 @@ class SocketConnection:
         # Handle callback
         Request.callback(*args)
 
+    @abstractmethod
     def send(self, request):
         pass
