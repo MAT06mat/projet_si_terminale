@@ -3,11 +3,7 @@ try:
 except ModuleNotFoundError:
     import sys
 
-    sys.path.insert(
-        1,
-        "C:\\Users\\matth\\Documents\\Code\\Python\\Gros Projets\\projet_si_terminale",
-    )
+    sys.path.insert(1, "\\".join(__file__.split("\\")[:-2]))
     from mods import bluetooth_socket
-
 
 __all__ = bluetooth_socket
