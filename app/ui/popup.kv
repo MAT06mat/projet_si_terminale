@@ -1,0 +1,46 @@
+#:import Window kivy.core.window.Window
+#:import CustomButton ui.button.CustomButton
+
+<CustomPopup>:
+    title_color: "#3F3F3F"
+    title_align: 'center'
+    title_size: 25
+    size_hint: .9, None
+    height: self.label.texture_size[1] + 45
+    separator_height: 0
+    background_color: 0, 0, 0, 0
+    overlay_color: 0, 0, 0, 0
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 0.12*root._anim_alpha
+        Rectangle:
+            size: Window.size
+            pos: 0, 0
+        Color:
+            rgba: 0, 0, 0, 0.25*root._anim_alpha
+        BoxShadow:
+            pos: self.pos
+            size: self.size
+            offset: 0, -5
+            spread_radius: 0, 0
+            border_radius: 15, 15, 15, 15
+            blur_radius: 20
+        Color:
+            rgba: 1, 1, 1, 1
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: 15, 15, 15, 15
+
+<BooleanPopup>:
+    height: self.label.texture_size[1] + 95
+    BoxLayout:
+        spacing: 15
+        CustomButton:
+            text: root.yes_button_text
+            background: root.yes_button_color
+            on_release: root.on_release(True)
+        CustomButton:
+            text: root.no_button_text
+            background: root.no_button_color
+            on_release: root.on_release(False)

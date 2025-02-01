@@ -2,6 +2,8 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty
 from kivy.lang import Builder
 
+from ui.popup import BooleanPopup
+
 
 Builder.load_file("screens/main_menu.kv")
 
@@ -11,12 +13,14 @@ class MainMenu(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.text += f"\ntry start"
-        try:
-            from imports import bluetooth_socket as bs
+        self.popup = BooleanPopup(
+            title="Delete ?",
+            yes_button_color="#FB7B62",
+        )
+        self.popup.bind(answer=self.new_answer)
 
-            client = bs.Client("00:1a:7d:da:71:15")
-            client.connect()
-            self.text += f"\ntry end"
-        except Exception as e:
-            self.text += f"\nexception : {e}"
+    def new_answer(self, popup, answer):
+        self.log(answer)
+
+    def log(self, text):
+        self.text += f"\n{text}"

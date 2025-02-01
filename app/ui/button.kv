@@ -1,0 +1,19 @@
+<CustomButton>:
+    color: "#3F3F3F"
+    background_color: 0, 0, 0, 0
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 0.25
+        BoxShadow:
+            pos: self.pos
+            size: self.size
+            offset: 0, -2
+            spread_radius: 0, 0
+            border_radius: self.height/2, self.height/2, self.height/2, self.height/2
+            blur_radius: 10
+        Color:
+            rgba: self._background
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: self.height/2, self.height/2, self.height/2, self.height/2
