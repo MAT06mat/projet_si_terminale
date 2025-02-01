@@ -9,11 +9,11 @@
             size: self.size
             offset: 0, -2
             spread_radius: 0, 0
-            border_radius: self.height/2, self.height/2, self.height/2, self.height/2
+            border_radius: root.border_radius if root.border_radius else root.default_radius
             blur_radius: 10
         Color:
             rgba: self._background
         RoundedRectangle:
             size: self.size
             pos: self.pos
-            radius: self.height/2, self.height/2, self.height/2, self.height/2
+            radius: root.border_radius if root.border_radius else root.default_radius

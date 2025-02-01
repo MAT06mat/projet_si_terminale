@@ -1,5 +1,5 @@
 from kivy.uix.button import Button
-from kivy.properties import ColorProperty
+from kivy.properties import ColorProperty, ListProperty
 from kivy.animation import Animation
 from kivy.lang import Builder
 
@@ -8,8 +8,18 @@ Builder.load_file("ui/button.kv")
 
 
 class CustomButton(Button):
-    background = ColorProperty((1, 1, 1, 1))
-    _background = ColorProperty((1, 1, 1, 1))
+    background = ColorProperty("#E0E0E0")
+    _background = ColorProperty("#E0E0E0")
+    border_radius = ListProperty(None, allownone=True)
+    default_radius = ListProperty([0, 0, 0, 0])
+
+    def on_height(self, *args):
+        self.default_radius = (
+            self.height / 2,
+            self.height / 2,
+            self.height / 2,
+            self.height / 2,
+        )
 
     def on_background(self, *args):
         self._background = self.background
