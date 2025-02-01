@@ -21,12 +21,12 @@ class BooleanPopup(CustomPopup):
     no_button_color = ColorProperty("#E0E0E0")
 
     answer = BooleanProperty(None, force_dispatch=True)
-    pre_answer = False
+    _pre_answer = False
 
     def on_dismiss(self, *args):
-        self.answer = self.pre_answer
-        self.pre_answer = False
+        self.answer = self._pre_answer
+        self._pre_answer = False
 
     def on_release(self, answer):
-        self.pre_answer = answer
+        self._pre_answer = answer
         self.dismiss()
