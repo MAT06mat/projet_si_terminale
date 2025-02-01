@@ -1,5 +1,6 @@
 #:import Window kivy.core.window.Window
 #:import CustomButton ui.button.CustomButton
+#:import LimitedTextInput ui.textinput.LimitedTextInput
 
 <CustomPopup>:
     title_color: "#3F3F3F"
@@ -39,8 +40,21 @@
         CustomButton:
             text: root.yes_button_text
             background: root.yes_button_color
-            on_release: root.on_release(True)
+            on_release: root.on_validate(True)
         CustomButton:
             text: root.no_button_text
             background: root.no_button_color
-            on_release: root.on_release(False)
+            on_release: root.on_validate(False)
+
+<InputPopup>:
+    height: self.label.texture_size[1] + dp(80)
+    LimitedTextInput:
+        id: input
+        multiline: False
+        font_size: dp(17)
+        input_filter: root.input_filter
+        max_characters: root.max_characters
+        foreground_color: "#3F3F3F"
+        cursor_color: "#3F3F3F"
+        padding: [6, self.height / 2.0 - (self.line_height / 2.0) * len(self._lines)]
+        on_text_validate: root.on_validate(self.text)

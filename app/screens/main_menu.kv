@@ -13,7 +13,12 @@
         size_hint: 1, 0.6
         text_size: self.size
     CustomButton:
-        text: "Popup"
+        text: "Boolean Popup"
         size_hint: 1, 0.2
-        border_radius: dp(30), dp(30), 0, 0
-        on_release: root.popup.open()
+        border_radius: dp(20), dp(20), 0, 0
+        on_release: root.bpopup.open()
+    CustomButton:
+        text: "TextInput Popup"
+        size_hint: 1, 0.2
+        border_radius: 0, 0, 0, 0
+        on_release: root.tpopup.open()

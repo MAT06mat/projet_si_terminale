@@ -2,11 +2,11 @@ __version__ = "0.0.3"
 
 
 if __name__ == "__main__":
-    # from kivy.config import Config
+    from kivy.config import Config
     from kivy.core.text import LabelBase, DEFAULT_FONT
 
-    # Config.set("graphics", "width", "270")
-    # Config.set("graphics", "height", "600")
+    Config.set("graphics", "width", "270")
+    Config.set("graphics", "height", "600")
 
     LabelBase.register(DEFAULT_FONT, "assets/fonts/Lalezar-Regular.ttf")
 
