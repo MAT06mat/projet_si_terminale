@@ -1,5 +1,6 @@
 <CustomButton>:
     color: "#3F3F3F"
+    font_size: dp(20)
     background_color: 0, 0, 0, 0
     canvas.before:
         Color:
@@ -7,10 +8,10 @@
         BoxShadow:
             pos: self.pos
             size: self.size
-            offset: 0, -2
+            offset: 0, -dp(1)
             spread_radius: 0, 0
             border_radius: root.border_radius if root.border_radius else root.default_radius
-            blur_radius: 10
+            blur_radius: dp(7)
         Color:
             rgba: self._background
         RoundedRectangle:

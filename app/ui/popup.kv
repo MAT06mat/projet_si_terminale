@@ -4,9 +4,9 @@
 <CustomPopup>:
     title_color: "#3F3F3F"
     title_align: 'center'
-    title_size: 25
+    title_size: dp(25)
     size_hint: .9, None
-    height: self.label.texture_size[1] + 45
+    height: self.label.texture_size[1] + dp(40)
     separator_height: 0
     background_color: 0, 0, 0, 0
     overlay_color: 0, 0, 0, 0
@@ -21,21 +21,21 @@
         BoxShadow:
             pos: self.pos
             size: self.size
-            offset: 0, -5
+            offset: 0, -dp(3)
             spread_radius: 0, 0
-            border_radius: 15, 15, 15, 15
-            blur_radius: 20
+            border_radius: dp(10), dp(10), dp(10), dp(10)
+            blur_radius: dp(15)
         Color:
             rgba: 1, 1, 1, 1
         RoundedRectangle:
             size: self.size
             pos: self.pos
-            radius: 15, 15, 15, 15
+            radius: dp(10), dp(10), dp(10), dp(10)
 
 <BooleanPopup>:
-    height: self.label.texture_size[1] + 95
+    height: self.label.texture_size[1] + dp(80)
     BoxLayout:
-        spacing: 15
+        spacing: dp(15)
         CustomButton:
             text: root.yes_button_text
             background: root.yes_button_color

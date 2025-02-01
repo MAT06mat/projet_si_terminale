@@ -13,7 +13,7 @@ package.domain = com.matthieufelten.rcm
 source.dir = app
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv
+source.include_exts = py,png,jpg,kv,ttf
 
 # (list) List of inclusions using pattern matching
 #source.include_patterns = app/*/*.py
