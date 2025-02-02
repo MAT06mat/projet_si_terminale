@@ -2,3 +2,8 @@ tqdm
 kociemba
 Pillow
 matplotlib
+https://github.com/kivymd/KivyMD/archive/master.zip
+materialyoucolor
+exceptiongroup
+asyncgui
+asynckivy

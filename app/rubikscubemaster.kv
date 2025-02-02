@@ -1,7 +1,8 @@
 #:import screens.main_menu screens.main_menu
 
 <MyScreenManager>:
-    Screen:
+    MDScreen:
         name: "MainMenu"
+        md_bg_color: self.theme_cls.backgroundColor
         MainMenu:
             id: main_menu

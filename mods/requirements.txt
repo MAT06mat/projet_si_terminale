@@ -4,3 +4,8 @@ Pillow
 matplotlib
 git+https://github.com/pybluez/pybluez.git#egg=pybluez
 pyjnius
+https://github.com/kivymd/KivyMD/archive/master.zip
+materialyoucolor
+exceptiongroup
+asyncgui
+asynckivy
