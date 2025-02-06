@@ -1,8 +1,67 @@
-#:import screens.main_menu screens.main_menu
+#:import MainMenu screens.main_menu
+#:import LoadMenu screens.load_menu
 
-<MyScreenManager>:
-    MDScreen:
-        name: "MainMenu"
-        md_bg_color: self.theme_cls.backgroundColor
-        MainMenu:
-            id: main_menu
+
+<Root>:
+    md_bg_color: self.theme_cls.backgroundColor
+    MDNavigationLayout:
+        MDScreenManager:
+            id: screen_manager
+            MDScreen:
+                name: "MainMenu"
+                MainMenu:
+                    id: main_menu
+            MDScreen:
+                name: "SaveCube"
+            MDScreen:
+                name: "LoadCube"
+                LoadMenu:
+                    id: load_menu
+            MDScreen:
+                name: "ResolveCube"
+            MDScreen:
+                name: "ConnectBluetooth"
+    MDNavigationDrawer:
+        id: nav_drawer
+        drawer_type: "modal"
+        MDNavigationDrawerMenu:
+            MDNavigationDrawerLabel:
+                text: "R.C.M. - Menu"
+                font_style: "lalezar"
+                role: "medium"
+
+            MDNavigationDrawerDivider:
+
+            MDNavigationDrawerItem:
+                on_release: root.push("MainMenu")
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: "cube"
+                MDNavigationDrawerItemText:
+                    text: "Cube view"
+            MDNavigationDrawerItem:
+                on_release: root.push("SaveCube")
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: "content-save"
+                MDNavigationDrawerItemText:
+                    text: "Save cube"
+            MDNavigationDrawerItem:
+                on_release: root.push("LoadCube")
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: "content-save-edit"
+                MDNavigationDrawerItemText:
+                    text: "Load cube"
+            MDNavigationDrawerItem:
+                on_release: main_menu.reset_logs()
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: "reload"
+                MDNavigationDrawerItemText:
+                    text: "Reset logs"
+
+            MDNavigationDrawerDivider:
+
+            MDNavigationDrawerItem:
+                on_release: root.push("ConnectBluetooth")
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: "bluetooth"
+                MDNavigationDrawerItemText:
+                    text: "Connect bluetooth"

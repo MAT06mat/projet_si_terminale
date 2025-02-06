@@ -7,14 +7,10 @@ if __name__ == "__main__":
     from kivy.properties import ObjectProperty
     from kivy.metrics import sp
     from kivy.core.text import LabelBase
-
-    from screens.navigation_screen_manager import NavigationScreenManager
-
-    class MyScreenManager(NavigationScreenManager):
-        pass
+    from screens.root import Root
 
     class RubiksCubeMasterApp(MDApp):
-        manager = ObjectProperty(None)
+        root = ObjectProperty(None)
         icon = "assets/images/logo.png"
 
         def build(self):
@@ -43,7 +39,7 @@ if __name__ == "__main__":
                     "font-size": sp(15),
                 },
             }
-            self.manager = MyScreenManager()
-            return self.manager
+            self.root = Root()
+            return self.root
 
     RubiksCubeMasterApp().run()

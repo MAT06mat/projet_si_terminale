@@ -9,7 +9,7 @@
             MDActionTopAppBarButton:
                 icon: "menu"
                 id: menu_button
-                on_release: root.open_menu()
+                on_release: root.togle_menu()
         MDTopAppBarTitle:
             text: "Rubik's Cube Master"
             font_style: "lalezar"
@@ -22,6 +22,7 @@
         size_hint: 1, 0.6
         font_style: "lalezar"
         role: "small"
+        padding: dp(10)
     MDBoxLayout:
         adaptive_height: True
         padding: dp(10)
