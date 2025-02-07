@@ -9,7 +9,7 @@ import numpy as np
 from math import cos, sin, pi
 
 WHITE = (0.9, 0.9, 0.9)
-BLACK = (0, 0, 0)
+BLACK = (0.1, 0.1, 0.1)
 
 
 class FaceColors:
@@ -24,6 +24,7 @@ class FaceColors:
 class CubeWidget(Widget):
     angle = ListProperty([0, 0, 0])
     scale = NumericProperty(40)
+    border = NumericProperty(3)
     rotate_on_x = BooleanProperty(True)
     rotate_on_y = BooleanProperty(True)
     last_mouse_pos = None
@@ -124,10 +125,18 @@ class CubeWidget(Widget):
                 mode="triangles",
             )
             Color(*BLACK)
-            Line(points=[points[0][0], points[0][1], points[1][0], points[1][1]])
-            Line(points=[points[1][0], points[1][1], points[2][0], points[2][1]])
-            Line(points=[points[2][0], points[2][1], points[3][0], points[3][1]])
-            Line(points=[points[3][0], points[3][1], points[0][0], points[0][1]])
+            for i in range(4):
+                Line(
+                    points=[
+                        points[i][0],
+                        points[i][1],
+                        points[(i + 1) % 4][0],
+                        points[(i + 1) % 4][1],
+                    ],
+                    width=self.border,
+                    cap="round",
+                    joint="round",
+                )
 
     def update(self, *args):
         # Define the rotation matrices
