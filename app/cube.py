@@ -21,12 +21,22 @@ class FaceColors:
     B = (0, 0.27, 0.68)
 
 
+class RubiksColors:
+    U = ((FaceColors.U for j in range(3)) for i in range(3))
+    R = ((FaceColors.R for j in range(3)) for i in range(3))
+    F = ((FaceColors.F for j in range(3)) for i in range(3))
+    D = ((FaceColors.D for j in range(3)) for i in range(3))
+    L = ((FaceColors.L for j in range(3)) for i in range(3))
+    B = ((FaceColors.B for j in range(3)) for i in range(3))
+
+
 class CubeWidget(Widget):
     angle = ListProperty([0, 0, 0])
     scale = NumericProperty(40)
     border = NumericProperty(3)
     rotate_on_x = BooleanProperty(True)
     rotate_on_y = BooleanProperty(True)
+    relative_pos = ListProperty([0, 0, 0])
     last_mouse_pos = None
 
     def __init__(self, **kwargs):
@@ -167,8 +177,10 @@ class CubeWidget(Widget):
         self.canvas.clear()
         with self.canvas:
             for i, point in enumerate(self.points):
+                p = point + self.relative_pos
+
                 # Apply the rotation matrices to the points
-                rotated2d = np.dot(rotation_z, point.reshape((3, 1)))
+                rotated2d = np.dot(rotation_z, p.reshape((3, 1)))
                 rotated2d = np.dot(rotation_y, rotated2d)
                 rotated2d = np.dot(rotation_x, rotated2d)
 
