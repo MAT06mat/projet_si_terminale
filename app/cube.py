@@ -12,7 +12,7 @@ WHITE = (0.9, 0.9, 0.9)
 BLACK = (0, 0, 0)
 
 
-class Colors:
+class FaceColors:
     U = (1, 1, 1)
     R = (0.72, 0.07, 0.20)
     F = (0, 0.61, 0.28)
@@ -28,6 +28,7 @@ class CubeWidget(Widget):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        # Define the 8 points of the cube
         self.points = [
             np.matrix([-1, -1, 1]),
             np.matrix([1, -1, 1]),
@@ -39,9 +40,11 @@ class CubeWidget(Widget):
             np.matrix([-1, 1, -1]),
         ]
 
+        # Define the projection matrix
         self.projection_matrix = np.matrix([[1, 0, 0], [0, 1, 0]])
         self.projected_points = [[n, n] for n in range(len(self.points))]
 
+        # Schedule the update function to be called 60 times per second
         Clock.schedule_interval(self.update, 1 / 60)
 
     def on_touch_down(self, touch: MotionEvent):
@@ -77,20 +80,20 @@ class CubeWidget(Widget):
             return True
         return super().on_touch_up(touch)
 
-    def is_face_visible(self, p1, p2, p3, inverse=1):
-        # Convertir les points en tableaux NumPy 3D
+    def is_face_visible(self, p1, p2, p3, reversed=1):
+        # Convert points to 3D NumPy arrays
         p1 = np.array([p1[0], p1[1], 0])
         p2 = np.array([p2[0], p2[1], 0])
         p3 = np.array([p3[0], p3[1], 0])
-        # Calculer le vecteur normal de la face
+        # Calculate the normal vector of the face
         v1 = p2 - p1
         v2 = p3 - p1
-        normal = np.cross(v1, v2) * inverse
-        # La face est visible si la composante z de la normale est négative
+        normal = np.cross(v1, v2) * reversed
+        # The face is visible if the z component of the normal is negative
         return normal[2] < 0
 
-    def draw_face(self, points, color, inverse=1):
-        if self.is_face_visible(points[0], points[1], points[2], inverse):
+    def draw_face(self, points, color, reversed=1):
+        if self.is_face_visible(points[0], points[1], points[2], reversed):
             Color(*color)
             Mesh(
                 vertices=[
@@ -121,6 +124,7 @@ class CubeWidget(Widget):
             Line(points=[points[3][0], points[3][1], points[0][0], points[0][1]])
 
     def update(self, *args):
+        # Define the rotation matrices
         rotation_z = np.matrix(
             [
                 [cos(self.angle[2]), -sin(self.angle[2]), 0],
@@ -148,10 +152,12 @@ class CubeWidget(Widget):
         self.canvas.clear()
         with self.canvas:
             for i, point in enumerate(self.points):
+                # Apply the rotation matrices to the points
                 rotated2d = np.dot(rotation_z, point.reshape((3, 1)))
                 rotated2d = np.dot(rotation_y, rotated2d)
                 rotated2d = np.dot(rotation_x, rotated2d)
 
+                # Project the 3D points to 2D
                 projected2d = np.dot(self.projection_matrix, rotated2d)
 
                 if self.width > self.height:
@@ -167,13 +173,13 @@ class CubeWidget(Widget):
                 self.projected_points[i] = np.array([x, y])
 
             p = self.projected_points
-            # Dessiner les faces du cube
-            self.draw_face([p[0], p[1], p[2], p[3]], Colors.B, inverse=-1)
-            self.draw_face([p[4], p[5], p[6], p[7]], Colors.F)
-            self.draw_face([p[0], p[1], p[5], p[4]], Colors.D)
-            self.draw_face([p[2], p[3], p[7], p[6]], Colors.U)
-            self.draw_face([p[1], p[2], p[6], p[5]], Colors.L)
-            self.draw_face([p[0], p[3], p[7], p[4]], Colors.R, inverse=-1)
+            # Draw the faces of the cube
+            self.draw_face([p[0], p[1], p[2], p[3]], FaceColors.B, reversed=-1)
+            self.draw_face([p[4], p[5], p[6], p[7]], FaceColors.F)
+            self.draw_face([p[0], p[1], p[5], p[4]], FaceColors.D)
+            self.draw_face([p[2], p[3], p[7], p[6]], FaceColors.U)
+            self.draw_face([p[1], p[2], p[6], p[5]], FaceColors.L)
+            self.draw_face([p[0], p[3], p[7], p[4]], FaceColors.R, reversed=-1)
 
 
 class CubeApp(App):
