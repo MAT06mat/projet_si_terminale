@@ -1,7 +1,7 @@
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.graphics import Color, Line, Mesh
-from kivy.properties import ListProperty, NumericProperty
+from kivy.properties import ListProperty, NumericProperty, BooleanProperty
 from kivy.input.motionevent import MotionEvent
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -24,6 +24,8 @@ class FaceColors:
 class CubeWidget(Widget):
     angle = ListProperty([0, 0, 0])
     scale = NumericProperty(40)
+    rotate_on_x = BooleanProperty(True)
+    rotate_on_y = BooleanProperty(True)
     last_mouse_pos = None
 
     def __init__(self, **kwargs):
@@ -59,11 +61,15 @@ class CubeWidget(Widget):
         if touch.grab_current is self:
             dx = touch.pos[0] - self.last_mouse_pos[0]
             dy = touch.pos[1] - self.last_mouse_pos[1]
-            self.angle[0] -= dy * 0.01
-            s = 1
-            if pi / 2 < self.angle[0] < 3 * pi / 2:
-                s = -1
-            self.angle[1] += dx * 0.01 * s
+
+            if self.rotate_on_y:
+                self.angle[0] -= dy * 0.01
+            if self.rotate_on_x:
+                s = 1
+                if pi / 2 < self.angle[0] < 3 * pi / 2:
+                    s = -1
+                self.angle[1] += dx * 0.01 * s
+
             self.last_mouse_pos = touch.pos
 
             self.angle[0] %= 2 * pi
