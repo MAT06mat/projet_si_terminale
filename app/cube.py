@@ -26,121 +26,10 @@ class FaceColors:
     B = (0, 0.27, 0.68)
 
 
-class RubiksColors:
-    U = "UUUUUUUUU"
-    R = "RRRRRRRRR"
-    F = "FFFFFFFFF"
-    D = "DDDDDDDDD"
-    L = "LLLLLLLLL"
-    B = "BBBBBBBBB"
-
-
-class CubeWidget(Widget):
-    angle = ListProperty([0, 0, 0])
-    scale = NumericProperty(40)
-    border = NumericProperty(2)
-    rotate_on_x = BooleanProperty(True)
-    rotate_on_y = BooleanProperty(True)
-    last_mouse_pos = None
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.cubies = [
-            Cubie(self, r_pos=[2 * x, 2 * y, 2 * z])
-            for x in range(-1, 2)
-            for y in range(-1, 2)
-            for z in range(-1, 2)
-        ]
-        self.cube = solver.Cube()
-        # Schedule the update function to be called 60 times per second
-        Clock.schedule_interval(self.update, 1 / 60)
-        Clock.schedule_once(self.after, 2)
-
-    def after(self, *args):
-        self.cube.turn("U")
-
-    def on_touch_down(self, touch: MotionEvent):
-        if self.collide_point(*touch.pos):
-            touch.grab(self)
-            self.last_mouse_pos = touch.pos
-            Window.set_system_cursor("hand")
-            return True
-        return super().on_touch_down(touch)
-
-    def on_touch_move(self, touch):
-        if touch.grab_current is self:
-            dx = touch.pos[0] - self.last_mouse_pos[0]
-            dy = touch.pos[1] - self.last_mouse_pos[1]
-
-            if self.rotate_on_y:
-                self.angle[0] -= dy * 0.01
-            if self.rotate_on_x:
-                s = 1
-                if pi / 2 < self.angle[0] < 3 * pi / 2:
-                    s = -1
-                self.angle[1] += dx * 0.01 * s
-
-            self.last_mouse_pos = touch.pos
-
-            self.angle[0] %= 2 * pi
-            self.angle[1] %= 2 * pi
-            self.angle[2] %= 2 * pi
-
-            return True
-        return super().on_touch_move(touch)
-
-    def on_touch_up(self, touch):
-        if touch.grab_current is self:
-            touch.ungrab(self)
-            Window.set_system_cursor("arrow")
-            return True
-        return super().on_touch_up(touch)
-
-    def update(self, *args):
-        # Define the rotation matrices
-        rotation_z = np.matrix(
-            [
-                [cos(self.angle[2]), -sin(self.angle[2]), 0],
-                [sin(self.angle[2]), cos(self.angle[2]), 0],
-                [0, 0, 1],
-            ]
-        )
-
-        rotation_y = np.matrix(
-            [
-                [cos(self.angle[1]), 0, sin(self.angle[1])],
-                [0, 1, 0],
-                [-sin(self.angle[1]), 0, cos(self.angle[1])],
-            ]
-        )
-
-        rotation_x = np.matrix(
-            [
-                [1, 0, 0],
-                [0, cos(self.angle[0]), -sin(self.angle[0])],
-                [0, sin(self.angle[0]), cos(self.angle[0])],
-            ]
-        )
-
-        rotation = (rotation_z, rotation_y, rotation_x)
-
-        if self.width > self.height:
-            size = self.height / 6
-        else:
-            size = self.width / 6
-
-        mult = self.scale / 100 * size
-
-        self.canvas.clear()
-        with self.canvas:
-            for cubie in self.cubies:
-                cubie.render(rotation, mult)
-
-
-class Cubie(EventDispatcher):
-    def __init__(self, parent: CubeWidget, r_pos=[0, 0, 0]):
-        self.parent = parent
-        self.r_pos = r_pos
+class Cubie:
+    def __init__(self, parent, r_pos=[0, 0, 0]):
+        self.parent: RubiksCube = parent
+        self.r_pos = r_pos  # Relative pos
         # Define the 8 points of the cube
         self.points = [
             np.matrix([-1, -1, 1]),
@@ -170,12 +59,37 @@ class Cubie(EventDispatcher):
 
     def draw_face(self, points, face_index, reversed=1):
         if self.is_face_visible(points[0], points[1], points[2], reversed):
-            if face_index in "UD":
-                r_pos = np.matrix((self.r_pos[0], self.r_pos[2])) // 2
-            elif face_index in "RL":
-                r_pos = np.matrix((self.r_pos[1], self.r_pos[2])) // 2
-            else:
-                r_pos = np.matrix((self.r_pos[0], self.r_pos[1])) // 2
+            match face_index:
+                case "U":
+                    r_pos = np.matrix((-self.r_pos[0], -self.r_pos[2]))
+                case "D":
+                    r_pos = np.matrix((-self.r_pos[0], self.r_pos[2]))
+                case "R":
+                    # Rotate r_pos 90 degrees for RL faces
+                    rotation_matrix = np.matrix([[0, 1], [-1, 0]])
+                    r_pos = np.dot(
+                        rotation_matrix,
+                        np.matrix((self.r_pos[1], self.r_pos[2])).T,
+                    ).T
+                case "L":
+                    # Rotate r_pos 90 degrees for RL faces
+                    rotation_matrix = np.matrix([[0, 1], [-1, 0]])
+                    r_pos = np.dot(
+                        rotation_matrix, np.matrix((self.r_pos[1], -self.r_pos[2])).T
+                    ).T
+                case "F":
+                    # Rotate r_pos 180 degrees for FB faces
+                    rotation_matrix = np.matrix([[-1, 0], [0, -1]])
+                    r_pos = np.dot(
+                        rotation_matrix, np.matrix((self.r_pos[0], self.r_pos[1])).T
+                    ).T
+                case _:
+                    # Rotate r_pos 180 degrees for FB faces
+                    rotation_matrix = np.matrix([[-1, 0], [0, -1]])
+                    r_pos = np.dot(
+                        rotation_matrix, np.matrix((-self.r_pos[0], self.r_pos[1])).T
+                    ).T
+            r_pos //= 2
             cube_string = self.parent.cube.to_string(True)
             facelet_index = FACE_ORDER.index(face_index)
             face_color = cube_string[facelet_index * 9 : facelet_index * 9 + 9]
@@ -252,10 +166,103 @@ class Cubie(EventDispatcher):
             self.draw_face([p[0], p[3], p[7], p[4]], "R", reversed=-1)
 
 
+class RubiksCube(Widget):
+    angle = ListProperty([pi / 4, pi / 4, 0])
+    scale = NumericProperty(40)
+    border = NumericProperty(2)
+    allow_rotation = BooleanProperty(True)
+    last_mouse_pos = None
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.cubies = [
+            Cubie(self, r_pos=[2 * x, 2 * y, 2 * z])
+            for x in range(-1, 2)
+            for y in range(-1, 2)
+            for z in range(-1, 2)
+        ]
+        self.cube = solver.Cube()
+        # Schedule the update function to be called 60 times per second
+        Clock.schedule_interval(self.update, 1 / 60)
+
+    def on_touch_down(self, touch: MotionEvent):
+        if self.collide_point(*touch.pos):
+            touch.grab(self)
+            self.last_mouse_pos = touch.pos
+            Window.set_system_cursor("hand")
+            return True
+        return super().on_touch_down(touch)
+
+    def on_touch_move(self, touch):
+        if touch.grab_current is self and self.allow_rotation:
+            dx = touch.pos[0] - self.last_mouse_pos[0]
+            dy = touch.pos[1] - self.last_mouse_pos[1]
+
+            self.angle[0] -= dy * 0.01
+            s = 1
+            if pi / 2 < self.angle[0] < 3 * pi / 2:
+                s = -1
+            self.angle[1] += dx * 0.01 * s
+            self.angle[0] %= 2 * pi
+            self.angle[1] %= 2 * pi
+            self.angle[2] %= 2 * pi
+
+            self.last_mouse_pos = touch.pos
+            return True
+        return super().on_touch_move(touch)
+
+    def on_touch_up(self, touch):
+        if touch.grab_current is self:
+            touch.ungrab(self)
+            Window.set_system_cursor("arrow")
+            return True
+        return super().on_touch_up(touch)
+
+    def update(self, *args):
+        # Define the rotation matrices
+        rotation_z = np.matrix(
+            [
+                [cos(self.angle[2]), -sin(self.angle[2]), 0],
+                [sin(self.angle[2]), cos(self.angle[2]), 0],
+                [0, 0, 1],
+            ]
+        )
+
+        rotation_y = np.matrix(
+            [
+                [cos(self.angle[1]), 0, sin(self.angle[1])],
+                [0, 1, 0],
+                [-sin(self.angle[1]), 0, cos(self.angle[1])],
+            ]
+        )
+
+        rotation_x = np.matrix(
+            [
+                [1, 0, 0],
+                [0, cos(self.angle[0]), -sin(self.angle[0])],
+                [0, sin(self.angle[0]), cos(self.angle[0])],
+            ]
+        )
+
+        rotation = (rotation_z, rotation_y, rotation_x)
+
+        if self.width > self.height:
+            size = self.height / 6
+        else:
+            size = self.width / 6
+
+        mult = self.scale / 100 * size
+
+        self.canvas.clear()
+        with self.canvas:
+            for cubie in self.cubies:
+                cubie.render(rotation, mult)
+
+
 class CubeApp(App):
     def build(self):
         Window.clearcolor = WHITE
-        return CubeWidget()
+        return RubiksCube()
 
 
 if __name__ == "__main__":
