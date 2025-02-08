@@ -1,4 +1,4 @@
-from mods.solver.cube import PublicCube
+from mods.solver.cube import Cube
 from tqdm import tqdm
 from time import time
 
@@ -8,7 +8,7 @@ def test(nb, moves=30):
     mmin, tmin = 99, 99
     solves = []
     for i in tqdm(range(nb)):
-        cube = PublicCube()
+        cube = Cube()
         cube.random(moves)
 
         t1 = time()

@@ -1,4 +1,4 @@
-from mods.solver.cube import PublicCube as Cube, FACE_ORDER, SOLVED_CUBE_STRING
+from mods.solver.cube import Cube, FACE_ORDER, SOLVED_CUBE_STRING
 from mods.solver.tests import test
 
 
