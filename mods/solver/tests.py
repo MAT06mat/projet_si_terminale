@@ -17,7 +17,7 @@ def test(nb, moves=30):
 
         sol = sol.split(" ")
         for s in sol:
-            cube.__cube__.turn(s)
+            cube._cube.turn(s)
         solves.append(cube.is_solve())
 
         t = t2 - t1

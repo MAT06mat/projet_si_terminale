@@ -3,11 +3,16 @@ from kivy.uix.widget import Widget
 from kivy.graphics import Color, Line, Mesh
 from kivy.properties import ListProperty, NumericProperty, BooleanProperty
 from kivy.input.motionevent import MotionEvent
+from kivy.event import EventDispatcher
 from kivy.clock import Clock
 from kivy.core.window import Window
 import numpy as np
 from math import cos, sin, pi
 
+from imports import solver
+
+
+FACE_ORDER = solver.FACE_ORDER
 WHITE = (0.9, 0.9, 0.9)
 BLACK = (0.1, 0.1, 0.1)
 
@@ -22,43 +27,37 @@ class FaceColors:
 
 
 class RubiksColors:
-    U = ((FaceColors.U for j in range(3)) for i in range(3))
-    R = ((FaceColors.R for j in range(3)) for i in range(3))
-    F = ((FaceColors.F for j in range(3)) for i in range(3))
-    D = ((FaceColors.D for j in range(3)) for i in range(3))
-    L = ((FaceColors.L for j in range(3)) for i in range(3))
-    B = ((FaceColors.B for j in range(3)) for i in range(3))
+    U = "UUUUUUUUU"
+    R = "RRRRRRRRR"
+    F = "FFFFFFFFF"
+    D = "DDDDDDDDD"
+    L = "LLLLLLLLL"
+    B = "BBBBBBBBB"
 
 
 class CubeWidget(Widget):
     angle = ListProperty([0, 0, 0])
     scale = NumericProperty(40)
-    border = NumericProperty(3)
+    border = NumericProperty(2)
     rotate_on_x = BooleanProperty(True)
     rotate_on_y = BooleanProperty(True)
-    relative_pos = ListProperty([0, 0, 0])
     last_mouse_pos = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # Define the 8 points of the cube
-        self.points = [
-            np.matrix([-1, -1, 1]),
-            np.matrix([1, -1, 1]),
-            np.matrix([1, 1, 1]),
-            np.matrix([-1, 1, 1]),
-            np.matrix([-1, -1, -1]),
-            np.matrix([1, -1, -1]),
-            np.matrix([1, 1, -1]),
-            np.matrix([-1, 1, -1]),
+        self.cubies = [
+            Cubie(self, r_pos=[2 * x, 2 * y, 2 * z])
+            for x in range(-1, 2)
+            for y in range(-1, 2)
+            for z in range(-1, 2)
         ]
-
-        # Define the projection matrix
-        self.projection_matrix = np.matrix([[1, 0, 0], [0, 1, 0]])
-        self.projected_points = [[n, n] for n in range(len(self.points))]
-
+        self.cube = solver.Cube()
         # Schedule the update function to be called 60 times per second
         Clock.schedule_interval(self.update, 1 / 60)
+        Clock.schedule_once(self.after, 2)
+
+    def after(self, *args):
+        self.cube.turn("U")
 
     def on_touch_down(self, touch: MotionEvent):
         if self.collide_point(*touch.pos):
@@ -97,6 +96,66 @@ class CubeWidget(Widget):
             return True
         return super().on_touch_up(touch)
 
+    def update(self, *args):
+        # Define the rotation matrices
+        rotation_z = np.matrix(
+            [
+                [cos(self.angle[2]), -sin(self.angle[2]), 0],
+                [sin(self.angle[2]), cos(self.angle[2]), 0],
+                [0, 0, 1],
+            ]
+        )
+
+        rotation_y = np.matrix(
+            [
+                [cos(self.angle[1]), 0, sin(self.angle[1])],
+                [0, 1, 0],
+                [-sin(self.angle[1]), 0, cos(self.angle[1])],
+            ]
+        )
+
+        rotation_x = np.matrix(
+            [
+                [1, 0, 0],
+                [0, cos(self.angle[0]), -sin(self.angle[0])],
+                [0, sin(self.angle[0]), cos(self.angle[0])],
+            ]
+        )
+
+        rotation = (rotation_z, rotation_y, rotation_x)
+
+        if self.width > self.height:
+            size = self.height / 6
+        else:
+            size = self.width / 6
+
+        mult = self.scale / 100 * size
+
+        self.canvas.clear()
+        with self.canvas:
+            for cubie in self.cubies:
+                cubie.render(rotation, mult)
+
+
+class Cubie(EventDispatcher):
+    def __init__(self, parent: CubeWidget, r_pos=[0, 0, 0]):
+        self.parent = parent
+        self.r_pos = r_pos
+        # Define the 8 points of the cube
+        self.points = [
+            np.matrix([-1, -1, 1]),
+            np.matrix([1, -1, 1]),
+            np.matrix([1, 1, 1]),
+            np.matrix([-1, 1, 1]),
+            np.matrix([-1, -1, -1]),
+            np.matrix([1, -1, -1]),
+            np.matrix([1, 1, -1]),
+            np.matrix([-1, 1, -1]),
+        ]
+        # Define the projection matrix
+        self.projection_matrix = np.matrix([[1, 0, 0], [0, 1, 0]])
+        self.projected_points = [[n, n] for n in range(len(self.points))]
+
     def is_face_visible(self, p1, p2, p3, reversed=1):
         # Convert points to 3D NumPy arrays
         p1 = np.array([p1[0], p1[1], 0])
@@ -109,9 +168,21 @@ class CubeWidget(Widget):
         # The face is visible if the z component of the normal is negative
         return normal[2] < 0
 
-    def draw_face(self, points, color, reversed=1):
+    def draw_face(self, points, face_index, reversed=1):
         if self.is_face_visible(points[0], points[1], points[2], reversed):
-            Color(*color)
+            if face_index in "UD":
+                r_pos = np.matrix((self.r_pos[0], self.r_pos[2])) // 2
+            elif face_index in "RL":
+                r_pos = np.matrix((self.r_pos[1], self.r_pos[2])) // 2
+            else:
+                r_pos = np.matrix((self.r_pos[0], self.r_pos[1])) // 2
+            cube_string = self.parent.cube.to_string(True)
+            facelet_index = FACE_ORDER.index(face_index)
+            face_color = cube_string[facelet_index * 9 : facelet_index * 9 + 9]
+            x = r_pos[0, 0] + 1
+            y = r_pos[0, 1] + 1
+            color = face_color[3 * y + x]
+            Color(*FaceColors().__getattribute__(color))
             Mesh(
                 vertices=[
                     points[0][0],
@@ -143,70 +214,42 @@ class CubeWidget(Widget):
                         points[(i + 1) % 4][0],
                         points[(i + 1) % 4][1],
                     ],
-                    width=self.border,
+                    width=self.parent.border,
                     cap="round",
                     joint="round",
                 )
 
-    def update(self, *args):
-        # Define the rotation matrices
-        rotation_z = np.matrix(
-            [
-                [cos(self.angle[2]), -sin(self.angle[2]), 0],
-                [sin(self.angle[2]), cos(self.angle[2]), 0],
-                [0, 0, 1],
-            ]
-        )
+    def render(self, rotation, mult):
+        rz, ry, rx = rotation
+        for i, point in enumerate(self.points):
+            offset_point = point + self.r_pos
+            # Apply the rotation matrices to the points
+            rotated2d = np.dot(rz, offset_point.reshape((3, 1)))
+            rotated2d = np.dot(ry, rotated2d)
+            rotated2d = np.dot(rx, rotated2d)
 
-        rotation_y = np.matrix(
-            [
-                [cos(self.angle[1]), 0, sin(self.angle[1])],
-                [0, 1, 0],
-                [-sin(self.angle[1]), 0, cos(self.angle[1])],
-            ]
-        )
+            # Project the 3D points to 2D
+            projected2d = np.dot(self.projection_matrix, rotated2d)
 
-        rotation_x = np.matrix(
-            [
-                [1, 0, 0],
-                [0, cos(self.angle[0]), -sin(self.angle[0])],
-                [0, sin(self.angle[0]), cos(self.angle[0])],
-            ]
-        )
+            x = int(projected2d[0, 0] * mult) + self.parent.center_x
+            y = int(projected2d[1, 0] * mult) + self.parent.center_y
 
-        self.canvas.clear()
-        with self.canvas:
-            for i, point in enumerate(self.points):
-                p = point + self.relative_pos
+            self.projected_points[i] = np.array([x, y])
 
-                # Apply the rotation matrices to the points
-                rotated2d = np.dot(rotation_z, p.reshape((3, 1)))
-                rotated2d = np.dot(rotation_y, rotated2d)
-                rotated2d = np.dot(rotation_x, rotated2d)
-
-                # Project the 3D points to 2D
-                projected2d = np.dot(self.projection_matrix, rotated2d)
-
-                if self.width > self.height:
-                    size = self.height / 2
-                else:
-                    size = self.width / 2
-
-                mult = self.scale / 100 * size
-
-                x = int(projected2d[0, 0] * mult) + self.center_x
-                y = int(projected2d[1, 0] * mult) + self.center_y
-
-                self.projected_points[i] = np.array([x, y])
-
-            p = self.projected_points
-            # Draw the faces of the cube
-            self.draw_face([p[0], p[1], p[2], p[3]], FaceColors.B, reversed=-1)
-            self.draw_face([p[4], p[5], p[6], p[7]], FaceColors.F)
-            self.draw_face([p[0], p[1], p[5], p[4]], FaceColors.D)
-            self.draw_face([p[2], p[3], p[7], p[6]], FaceColors.U)
-            self.draw_face([p[1], p[2], p[6], p[5]], FaceColors.L)
-            self.draw_face([p[0], p[3], p[7], p[4]], FaceColors.R, reversed=-1)
+        p = self.projected_points
+        # Draw the faces of the cube
+        if self.r_pos[2] > 0:
+            self.draw_face([p[0], p[1], p[2], p[3]], "B", reversed=-1)
+        elif self.r_pos[2] < 0:
+            self.draw_face([p[4], p[5], p[6], p[7]], "F")
+        if self.r_pos[1] < 0:
+            self.draw_face([p[0], p[1], p[5], p[4]], "D")
+        elif self.r_pos[1] > 0:
+            self.draw_face([p[2], p[3], p[7], p[6]], "U")
+        if self.r_pos[0] > 0:
+            self.draw_face([p[1], p[2], p[6], p[5]], "L")
+        elif self.r_pos[0] < 0:
+            self.draw_face([p[0], p[3], p[7], p[4]], "R", reversed=-1)
 
 
 class CubeApp(App):

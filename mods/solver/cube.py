@@ -110,7 +110,7 @@ class Cube:
 class PublicCube:
     def __init__(self, patternstring: str | None = None) -> None:
         """Initialize the cube"""
-        self.__cube__ = Cube()
+        self._cube = Cube()
         if patternstring:
             self.from_string(patternstring)
 
@@ -137,25 +137,28 @@ class PublicCube:
                 )
         # Raise an error if the string is not correct
         kociemba.solve(Cube(patternstring).to_kociemba())
-        self.__cube__.cube_string = patternstring
+        self._cube.cube_string = patternstring
 
     def to_string(self, kociemba=False) -> str:
         """Return the string of the cube"""
         if kociemba:
-            return self.__cube__.to_kociemba()
+            return self._cube.to_kociemba()
         else:
-            return self.__cube__.cube_string
+            return self._cube.cube_string
+
+    def turn(self, move: str) -> None:
+        self._cube.turn(move)
 
     def is_solve(self) -> bool:
         """Return if True the cube is solve"""
-        return self.__cube__.is_solve()
+        return self._cube.is_solve()
 
     def solve(self, patternstring: str | None = None, max_depth: int = 24) -> str:
         """Solve a cube and return the solution"""
-        if self.__cube__.is_solve():
+        if self._cube.is_solve():
             return "Already solve"
-        return kociemba.solve(self.__cube__.to_kociemba(), patternstring, max_depth)
+        return kociemba.solve(self._cube.to_kociemba(), patternstring, max_depth)
 
     def random(self, nb: int = random.randint(20, 30)) -> None:
         """Randomize the cube"""
-        self.__cube__.random(nb)
+        self._cube.random(nb)
