@@ -90,7 +90,7 @@ class Cubie:
                         rotation_matrix, np.matrix((-self.r_pos[0], self.r_pos[1])).T
                     ).T
             r_pos //= 2
-            cube_string = self.parent.cube.to_string(True)
+            cube_string = self.parent.to_string(True)
             facelet_index = FACE_ORDER.index(face_index)
             face_color = cube_string[facelet_index * 9 : facelet_index * 9 + 9]
             x = r_pos[0, 0] + 1
@@ -166,7 +166,7 @@ class Cubie:
             self.draw_face([p[0], p[3], p[7], p[4]], "R", reversed=-1)
 
 
-class RubiksCube(Widget):
+class RubiksCube(Widget, solver.Cube):
     angle = ListProperty([pi / 4, pi / 4, 0])
     scale = NumericProperty(40)
     border = NumericProperty(2)
@@ -181,7 +181,6 @@ class RubiksCube(Widget):
             for y in range(-1, 2)
             for z in range(-1, 2)
         ]
-        self.cube = solver.Cube()
         # Schedule the update function to be called 60 times per second
         Clock.schedule_interval(self.update, 1 / 60)
 
