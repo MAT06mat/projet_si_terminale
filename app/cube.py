@@ -195,7 +195,7 @@ class RubiksCube(Widget, solver.Cube):
     Color of the border lines around each face.
     """
 
-    frame_rate = NumericProperty(60)
+    frame_rate = NumericProperty(1 / 60)
     """
     Frame rate of updating cube
     """
@@ -222,8 +222,7 @@ class RubiksCube(Widget, solver.Cube):
             for y in range(-1, 2)
             for z in range(-1, 2)
         ]
-        # Schedule the update function to be called 60 times per second
-        Clock.schedule_interval(self._update_cube_graphic, self.frame_rate)
+        Clock.schedule_interval(self.update_cube, self.frame_rate)
 
     def on_touch_down(self, touch: MotionEvent):
         if self.collide_point(*touch.pos):
@@ -264,7 +263,7 @@ class RubiksCube(Widget, solver.Cube):
             return True
         return super().on_touch_up(touch)
 
-    def _update_cube_graphic(self, *args):
+    def update_cube(self, *args):
         # Define the rotation matrices
         rotation_z = np.matrix(
             [
