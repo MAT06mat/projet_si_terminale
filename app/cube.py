@@ -1,9 +1,13 @@
 from kivy.app import App
 from kivy.uix.widget import Widget
-from kivy.graphics import Color, Line, Mesh
-from kivy.properties import ListProperty, NumericProperty, BooleanProperty
+from kivy.graphics import Color, Line, Mesh, Rectangle
+from kivy.properties import (
+    ListProperty,
+    NumericProperty,
+    BooleanProperty,
+    ColorProperty,
+)
 from kivy.input.motionevent import MotionEvent
-from kivy.event import EventDispatcher
 from kivy.clock import Clock
 from kivy.core.window import Window
 import numpy as np
@@ -13,11 +17,9 @@ from imports import solver
 
 
 FACE_ORDER = solver.FACE_ORDER
-WHITE = (0.9, 0.9, 0.9)
-BLACK = (0.1, 0.1, 0.1)
 
 
-class FaceColors:
+class FacesColors:
     U = (1, 1, 1)
     R = (0.72, 0.07, 0.20)
     F = (0, 0.61, 0.28)
@@ -96,7 +98,7 @@ class Cubie:
             x = r_pos[0, 0] + 1
             y = r_pos[0, 1] + 1
             color = face_color[3 * y + x]
-            Color(*FaceColors().__getattribute__(color))
+            Color(*FacesColors().__getattribute__(color))
             Mesh(
                 vertices=[
                     points[0][0],
@@ -119,7 +121,7 @@ class Cubie:
                 indices=[0, 1, 2, 2, 3, 0],
                 mode="triangles",
             )
-            Color(*BLACK)
+            Color(*self.parent.border_color)
             for i in range(4):
                 Line(
                     points=[
@@ -171,6 +173,10 @@ class RubiksCube(Widget, solver.Cube):
     scale = NumericProperty(40)
     border = NumericProperty(2)
     allow_rotation = BooleanProperty(True)
+    max_y_rotation = BooleanProperty(False)
+    background_color = ColorProperty((0.9, 0.9, 0.9, 1))
+    border_color = ColorProperty((0.1, 0.1, 0.1, 1))
+
     last_mouse_pos = None
 
     def __init__(self, **kwargs):
@@ -198,6 +204,11 @@ class RubiksCube(Widget, solver.Cube):
             dy = touch.pos[1] - self.last_mouse_pos[1]
 
             self.angle[0] -= dy * 0.01
+            if self.max_y_rotation or True:
+                if self.angle[0] < pi:
+                    self.angle[0] = min(self.angle[0], pi / 2)
+                else:
+                    self.angle[0] = max(self.angle[0], 3 * pi / 2)
             s = 1
             if pi / 2 < self.angle[0] < 3 * pi / 2:
                 s = -1
@@ -254,13 +265,14 @@ class RubiksCube(Widget, solver.Cube):
 
         self.canvas.clear()
         with self.canvas:
+            Color(*self.background_color)
+            Rectangle(pos=self.pos, size=self.size)
             for cubie in self.cubies:
                 cubie.render(rotation, mult)
 
 
 class CubeApp(App):
     def build(self):
-        Window.clearcolor = WHITE
         return RubiksCube()
 
 
