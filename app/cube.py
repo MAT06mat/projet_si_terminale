@@ -19,15 +19,6 @@ from imports import solver
 FACE_ORDER = solver.FACE_ORDER
 
 
-class FacesColors:
-    U = (1, 1, 1)
-    R = (0.72, 0.07, 0.20)
-    F = (0, 0.61, 0.28)
-    D = (1, 0.84, 0)
-    L = (1, 0.35, 0)
-    B = (0, 0.27, 0.68)
-
-
 class Cubie:
     def __init__(self, parent, r_pos=[0, 0, 0]):
         self.parent: RubiksCube = parent
@@ -98,7 +89,7 @@ class Cubie:
             x = r_pos[0, 0] + 1
             y = r_pos[0, 1] + 1
             color = face_color[3 * y + x]
-            Color(*FacesColors().__getattribute__(color))
+            Color(*self.parent.faces_colors[color])
             Mesh(
                 vertices=[
                     points[0][0],
@@ -170,38 +161,82 @@ class Cubie:
 
 class RubiksCube(Widget, solver.Cube):
     angle = ListProperty([pi / 4, pi / 4, 0])
-    scale = NumericProperty(40)
-    border = NumericProperty(2)
-    allow_rotation = BooleanProperty(True)
-    max_y_rotation = BooleanProperty(False)
-    background_color = ColorProperty((0.9, 0.9, 0.9, 1))
-    border_color = ColorProperty((0.1, 0.1, 0.1, 1))
+    """
+    List of angles for rotation around the x, y, and z axes.
+    """
 
-    last_mouse_pos = None
+    scale = NumericProperty(40)
+    """
+    Scale factor for the size of the cube.
+    """
+
+    border = NumericProperty(2)
+    """
+    Width of the border lines around each face.
+    """
+
+    allow_rotation = BooleanProperty(True)
+    """
+    Boolean to allow or disallow rotation of the cube.
+    """
+
+    max_y_rotation = BooleanProperty(False)
+    """
+    Boolean to limit the maximum rotation around the y-axis.
+    """
+
+    background_color = ColorProperty((0.9, 0.9, 0.9, 1))
+    """
+    Background color of the widget.
+    """
+
+    border_color = ColorProperty((0.1, 0.1, 0.1, 1))
+    """
+    Color of the border lines around each face.
+    """
+
+    frame_rate = NumericProperty(60)
+    """
+    Frame rate of updating cube
+    """
+
+    faces_colors = {
+        "U": (1, 1, 1),
+        "R": (0.72, 0.07, 0.20),
+        "F": (0, 0.61, 0.28),
+        "D": (1, 0.84, 0),
+        "L": (1, 0.35, 0),
+        "B": (0, 0.27, 0.68),
+    }
+    """
+    Color of each face.
+    """
+
+    _last_touch_pos = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.cubies = [
+        self._cubies = [
             Cubie(self, r_pos=[2 * x, 2 * y, 2 * z])
             for x in range(-1, 2)
             for y in range(-1, 2)
             for z in range(-1, 2)
         ]
         # Schedule the update function to be called 60 times per second
-        Clock.schedule_interval(self.update, 1 / 60)
+        Clock.schedule_interval(self._update_cube_graphic, self.frame_rate)
 
     def on_touch_down(self, touch: MotionEvent):
         if self.collide_point(*touch.pos):
             touch.grab(self)
-            self.last_mouse_pos = touch.pos
+            self._last_touch_pos = touch.pos
             Window.set_system_cursor("hand")
             return True
         return super().on_touch_down(touch)
 
     def on_touch_move(self, touch):
         if touch.grab_current is self and self.allow_rotation:
-            dx = touch.pos[0] - self.last_mouse_pos[0]
-            dy = touch.pos[1] - self.last_mouse_pos[1]
+            dx = touch.pos[0] - self._last_touch_pos[0]
+            dy = touch.pos[1] - self._last_touch_pos[1]
 
             self.angle[0] -= dy * 0.01
             if self.max_y_rotation or True:
@@ -217,18 +252,19 @@ class RubiksCube(Widget, solver.Cube):
             self.angle[1] %= 2 * pi
             self.angle[2] %= 2 * pi
 
-            self.last_mouse_pos = touch.pos
+            self._last_touch_pos = touch.pos
             return True
         return super().on_touch_move(touch)
 
     def on_touch_up(self, touch):
         if touch.grab_current is self:
             touch.ungrab(self)
+            self._last_touch_pos = None
             Window.set_system_cursor("arrow")
             return True
         return super().on_touch_up(touch)
 
-    def update(self, *args):
+    def _update_cube_graphic(self, *args):
         # Define the rotation matrices
         rotation_z = np.matrix(
             [
@@ -267,7 +303,7 @@ class RubiksCube(Widget, solver.Cube):
         with self.canvas:
             Color(*self.background_color)
             Rectangle(pos=self.pos, size=self.size)
-            for cubie in self.cubies:
+            for cubie in self._cubies:
                 cubie.render(rotation, mult)
 
 
