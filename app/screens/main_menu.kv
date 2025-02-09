@@ -1,4 +1,5 @@
 #:import CustomButton ui.button.CustomButton
+#:import RubiksCube ui.cube.RubiksCube
 
 <MainMenu>:
     orientation: "vertical"
@@ -16,29 +17,31 @@
             color: "#3F3F3F"
             pos_hint: {"center_x": .5}
 
-    MDLabel:
-        text: root.text
-        color: "#3F3F3F"
-        size_hint: 1, 0.6
-        font_style: "lalezar"
-        role: "small"
-        padding: dp(10)
-    MDBoxLayout:
-        adaptive_height: True
-        padding: dp(10)
-        spacing: dp(10)
-        Widget:
-        MDFabButton:
-            icon: "delete"
-            opacity: 0 if not root.edit_mode else 1
-            disabled: not root.edit_mode
-            on_release: root.bpopup.open()
-        MDFabButton:
-            icon: "content-save-all"
-            opacity: 0 if not root.edit_mode else 1
-            disabled: not root.edit_mode
-            on_release: root.tpopup.open()
-        MDFabButton:
-            icon: "pencil-outline" if not root.edit_mode else "close"
-            style: "standard"
-            on_release: root.toggle_edit_mode()
+    RelativeLayout:
+        RubiksCube:
+            id: cube
+        MDLabel:
+            text: root.text
+            color: "#3F3F3F"
+            font_style: "lalezar"
+            role: "small"
+            padding: dp(10)
+        MDBoxLayout:
+            adaptive_height: True
+            padding: dp(10)
+            spacing: dp(10)
+            Widget:
+            MDFabButton:
+                icon: "delete"
+                opacity: 0 if not root.edit_mode else 1
+                disabled: not root.edit_mode
+                on_release: root.bpopup.open()
+            MDFabButton:
+                icon: "content-save-all"
+                opacity: 0 if not root.edit_mode else 1
+                disabled: not root.edit_mode
+                on_release: root.tpopup.open()
+            MDFabButton:
+                icon: "pencil-outline" if not root.edit_mode else "close"
+                style: "standard"
+                on_release: root.toggle_edit_mode()

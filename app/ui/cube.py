@@ -1,4 +1,3 @@
-from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.graphics import Color, Line, Mesh, Rectangle
 from kivy.properties import (
@@ -424,10 +423,11 @@ class RubiksCube(Widget, solver.Cube):
                 cubie.render(rotation, mult)
 
 
-class CubeApp(App):
-    def build(self):
-        return RubiksCube()
-
-
 if __name__ == "__main__":
+    from kivy.app import App
+
+    class CubeApp(App):
+        def build(self):
+            return RubiksCube()
+
     CubeApp().run()
