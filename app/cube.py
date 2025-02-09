@@ -175,16 +175,16 @@ class Cubie:
                 joint="round",
             )
 
-    def project_point(self, point, r_pos, angle, mult):
+    def project_point(self, point, r_pos, rotation, mult):
         """
         Project a 3D point to 2D.
         """
-        rz, ry, rx = angle
+        rx, ry, rz = rotation
         offset_point = point + r_pos
         # Apply the rotation matrices to the points
-        rotated2d = np.dot(rz, offset_point.reshape((3, 1)))
+        rotated2d = np.dot(rx, offset_point.reshape((3, 1)))
         rotated2d = np.dot(ry, rotated2d)
-        rotated2d = np.dot(rx, rotated2d)
+        rotated2d = np.dot(rz, rotated2d)
 
         # Project the 3D points to 2D
         projected2d = np.dot(self.projection_matrix, rotated2d)
@@ -194,14 +194,14 @@ class Cubie:
 
         return np.array([x, y])
 
-    def render(self, angle, mult):
+    def render(self, rotation, mult):
         """
         Render the cubie.
         """
         # Update projected points
         for i, point in enumerate(self.points):
             self.projected_points[i] = self.project_point(
-                point, self.r_pos, angle, mult
+                point, self.r_pos, rotation, mult
             )
 
         # Draw the faces of the cube
@@ -267,7 +267,7 @@ class RubiksCube(Widget, solver.Cube):
     Last touch position for tracking touch movement.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self._cubies = [
             Cubie(self, r_pos=[2 * x, 2 * y, 2 * z])
@@ -278,7 +278,7 @@ class RubiksCube(Widget, solver.Cube):
         ]
         Clock.schedule_interval(self.update_cube, self.frame_rate)
 
-    def _is_point_in_triangle(self, px, py, ax, ay, bx, by, cx, cy):
+    def _is_point_in_triangle(self, px, py, ax, ay, bx, by, cx, cy) -> bool:
         """
         Check if a point (px, py) is inside a triangle defined by points (ax, ay), (bx, by), and (cx, cy).
         Uses barycentric coordinates to determine if the point is inside the triangle.
@@ -294,7 +294,7 @@ class RubiksCube(Widget, solver.Cube):
 
         return 0 <= a <= 1 and 0 <= b <= 1 and 0 <= c <= 1
 
-    def _is_touch_inside_face(self, touch_pos, face_points):
+    def _is_touch_inside_face(self, touch_pos, face_points) -> bool:
         """
         Check if a touch position is inside a face defined by 4 points.
         Decomposes the face into two triangles and checks if the touch position is inside either triangle.
@@ -335,7 +335,7 @@ class RubiksCube(Widget, solver.Cube):
             return True
         return super().on_touch_down(touch)
 
-    def on_touch_move(self, touch):
+    def on_touch_move(self, touch: MotionEvent):
         """
         Handle touch move events.
         """
@@ -361,7 +361,7 @@ class RubiksCube(Widget, solver.Cube):
             return True
         return super().on_touch_move(touch)
 
-    def on_touch_up(self, touch):
+    def on_touch_up(self, touch: MotionEvent):
         """
         Handle touch up events.
         """
@@ -382,11 +382,11 @@ class RubiksCube(Widget, solver.Cube):
         Update the cube's rotation and render it.
         """
         # Define the rotation matrices
-        rotation_z = np.matrix(
+        rotation_x = np.matrix(
             [
-                [cos(self.angle[2]), -sin(self.angle[2]), 0],
-                [sin(self.angle[2]), cos(self.angle[2]), 0],
-                [0, 0, 1],
+                [1, 0, 0],
+                [0, cos(self.angle[0]), -sin(self.angle[0])],
+                [0, sin(self.angle[0]), cos(self.angle[0])],
             ]
         )
 
@@ -398,15 +398,15 @@ class RubiksCube(Widget, solver.Cube):
             ]
         )
 
-        rotation_x = np.matrix(
+        rotation_z = np.matrix(
             [
-                [1, 0, 0],
-                [0, cos(self.angle[0]), -sin(self.angle[0])],
-                [0, sin(self.angle[0]), cos(self.angle[0])],
+                [cos(self.angle[2]), -sin(self.angle[2]), 0],
+                [sin(self.angle[2]), cos(self.angle[2]), 0],
+                [0, 0, 1],
             ]
         )
 
-        rotation = (rotation_z, rotation_y, rotation_x)
+        rotation = (rotation_x, rotation_y, rotation_z)
 
         if self.width > self.height:
             size = self.height / 6
