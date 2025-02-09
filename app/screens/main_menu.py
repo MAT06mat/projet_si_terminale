@@ -3,7 +3,7 @@ from kivy.properties import StringProperty, BooleanProperty
 from kivy.app import App
 from kivy.lang import Builder
 
-from ui.popup import InputPopup, BooleanPopup
+from ui.popup import TextInputPopup, BooleanPopup
 
 
 Builder.load_file("screens/main_menu.kv")
@@ -21,7 +21,7 @@ class MainMenu(BoxLayout):
             yes_button_color="#FB7B62",
         )
         self.bpopup.bind(answer=self.new_answer)
-        self.tpopup = InputPopup(title="Save name")
+        self.tpopup = TextInputPopup(title="Save name")
         self.tpopup.bind(answer=self.new_answer)
         self.dropmenu = None
 

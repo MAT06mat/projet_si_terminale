@@ -3,6 +3,8 @@ from kivymd.uix.navigationdrawer import MDNavigationDrawerItem
 from kivymd.uix.dialog import MDDialog
 from kivy.properties import BooleanProperty
 
+from ui.popup import TextInputPopup
+
 
 class NavigationDrawerItem(MDNavigationDrawerItem):
     selectable = BooleanProperty(True)
@@ -27,7 +29,18 @@ class Dialog(MDDialog):
 class Root(MDScreen):
     def push(self, screen):
         self.ids.screen_manager.current = screen
+        self.toggle_drawer()
+
+    def toggle_drawer(self):
         self.ids.nav_drawer.set_state("toggle")
 
     def save_cube(self):
-        Dialog().open()
+        self.toggle_drawer()
+        popup = TextInputPopup(title="Save name")
+        popup.bind(answer=self.on_save)
+        popup.open()
+
+    def on_save(self, popup, text):
+        if text:
+            # TODO
+            self.ids.main_menu.log("New save at '%s'" % text)

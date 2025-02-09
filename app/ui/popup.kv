@@ -32,10 +32,10 @@
             MDButtonText:
                 text: root.yes_button_text
 
-<InputPopup>:
+<TextInputPopup>:
     MDDialogContentContainer:
         LimitedTextInput:
-            id: input
+            id: text_input
             multiline: False
             max_characters: root.max_characters
             on_text_validate: root.on_validate(self.text)

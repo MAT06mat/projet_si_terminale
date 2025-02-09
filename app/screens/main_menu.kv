@@ -10,7 +10,7 @@
             MDActionTopAppBarButton:
                 icon: "menu"
                 id: menu_button
-                on_release: app.root.ids.nav_drawer.set_state("toggle")
+                on_release: app.root.toggle_drawer()
         MDTopAppBarTitle:
             text: "Rubik's Cube Master"
             font_style: "lalezar"
@@ -20,6 +20,7 @@
     RelativeLayout:
         RubiksCube:
             id: cube
+            background_color: app.theme_cls.backgroundColor
         MDLabel:
             text: root.text
             color: "#3F3F3F"

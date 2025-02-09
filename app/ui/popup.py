@@ -1,13 +1,11 @@
 from kivymd.uix.dialog import MDDialog
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
-from kivymd.uix.button import MDButton
 from kivy.properties import (
     StringProperty,
     ColorProperty,
     BooleanProperty,
     NumericProperty,
-    ObjectProperty,
     StringProperty,
 )
 from kivy.lang import Builder
@@ -44,12 +42,12 @@ class BooleanPopup(CustomPopup):
     no_button_color = ColorProperty(None, allownone=True)
 
 
-class InputPopup(CustomPopup):
+class TextInputPopup(CustomPopup):
     max_characters = NumericProperty(99)
 
     @property
     def text_input(self, *args) -> TextInput:
-        return self.ids["input"]
+        return self.ids["text_input"]
 
     def open(self, *_args, **kwargs):
         self.text_input.focus = True
