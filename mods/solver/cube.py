@@ -1,8 +1,22 @@
 import random, kociemba
+from enum import StrEnum, auto
 
 
-SOLVED_CUBE_STRING = "UUUUUUUURRRRRRRRFFFFFFFFDDDDDDDDLLLLLLLLBBBBBBBB"
-FACE_ORDER = "URFDLB"
+class CubeNotation(StrEnum):
+    def _generate_next_value_(name, *_):
+        return name
+
+    U = auto()
+    R = auto()
+    F = auto()
+    D = auto()
+    L = auto()
+    B = auto()
+
+
+CN = CubeNotation
+FACE_ORDER = "".join(face for face in CN)
+SOLVED_CUBE_STRING = "".join(face * 8 for face in CN)
 
 
 class Cube:
@@ -18,35 +32,35 @@ class Cube:
     def _get_side(self, face: str, side: str) -> str:
         face = self._get_face(face)
         match side:
-            case "U":
+            case CN.U:
                 return face[:3]
-            case "R":
+            case CN.R:
                 return face[2:5]
-            case "D":
+            case CN.D:
                 return face[4:7]
-            case "L":
+            case CN.L:
                 return face[6:8] + face[0]
 
     def _set_side(self, face: str, side: str, pos: str) -> None:
         index = FACE_ORDER.index(face) * 8
         match pos:
-            case "U":
+            case CN.U:
                 self._cube_string = (
                     self._cube_string[:index] + side + self._cube_string[index + 3 :]
                 )
-            case "R":
+            case CN.R:
                 self._cube_string = (
                     self._cube_string[: index + 2]
                     + side
                     + self._cube_string[index + 5 :]
                 )
-            case "D":
+            case CN.D:
                 self._cube_string = (
                     self._cube_string[: index + 4]
                     + side
                     + self._cube_string[index + 7 :]
                 )
-            case "L":
+            case CN.L:
                 self._cube_string = (
                     self._cube_string[:index]
                     + side[2]
@@ -78,8 +92,8 @@ class Cube:
                 + patternstring
                 + " contains more than 48 facelets."
             )
-        for i in FACE_ORDER:
-            if patternstring.count(i) != 8:
+        for face in CN:
+            if patternstring.count(face) != 8:
                 raise ValueError(
                     "Cube definition string "
                     + patternstring
@@ -129,12 +143,12 @@ class Cube:
             else:
                 self.turn(f + "2")
         table = {
-            "U": ("BRFL", "UUUU"),
-            "R": ("BDFU", "LRRR"),
-            "F": ("URDL", "DLUR"),
-            "D": ("BLFR", "DDDD"),
-            "L": ("BUFD", "RLLL"),
-            "B": ("DRUL", "DRUL"),
+            CN.U: ("BRFL", "UUUU"),
+            CN.R: ("BDFU", "LRRR"),
+            CN.F: ("URDL", "DLUR"),
+            CN.D: ("BLFR", "DDDD"),
+            CN.L: ("BUFD", "RLLL"),
+            CN.B: ("DRUL", "DRUL"),
         }[f]
         self._face_rotate(f)
         sides = [self._get_side(table[0][i], table[1][i]) for i in range(4)]

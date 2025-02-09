@@ -16,6 +16,7 @@ from math import cos, sin, pi
 from imports import solver
 
 
+CN = solver.CubeNotation
 FACE_ORDER = solver.FACE_ORDER
 
 
@@ -38,49 +39,49 @@ class Cubie:
         self.projection_matrix = np.matrix([[1, 0, 0], [0, 1, 0]])
         self.projected_points = [[n, n] for n in range(len(self.points))]
 
-    def get_points(self, face):
+    def get_points(self, face: str) -> list[list[int]]:
         """
         Get the points of the specified face.
         """
         p = self.projected_points
         match face:
-            case "B":
+            case CN.B:
                 return [p[0], p[1], p[2], p[3]]
-            case "F":
+            case CN.F:
                 return [p[4], p[5], p[6], p[7]]
-            case "D":
+            case CN.D:
                 return [p[0], p[1], p[5], p[4]]
-            case "U":
+            case CN.U:
                 return [p[2], p[3], p[7], p[6]]
-            case "L":
+            case CN.L:
                 return [p[1], p[2], p[6], p[5]]
-            case _:
+            case CN.R:
                 return [p[0], p[3], p[7], p[4]]
 
-    def is_face_visible(self, face, reversed=1):
+    def is_face_visible(self, face: str, reversed: int = 1) -> bool:
         """
         Check if the specified face is visible.
         """
         match face:
-            case "B":
+            case CN.B:
                 if self.r_pos[2] <= 0:
                     return False
-            case "F":
+            case CN.F:
                 if self.r_pos[2] >= 0:
                     return False
-            case "D":
+            case CN.D:
                 if self.r_pos[1] >= 0:
                     return False
-            case "U":
+            case CN.U:
                 if self.r_pos[1] <= 0:
                     return False
-            case "L":
+            case CN.L:
                 if self.r_pos[0] <= 0:
                     return False
-            case _:
+            case CN.R:
                 if self.r_pos[0] >= 0:
                     return False
-        if face in "BR":
+        if face in CN.B + CN.R:
             reversed = -1
         p1, p2, p3, _ = self.get_points(face)
         # Convert points to 3D NumPy arrays
@@ -94,37 +95,37 @@ class Cubie:
         # The face is visible if the z component of the normal is negative
         return normal[2] < 0
 
-    def draw_face(self, face):
+    def draw_face(self, face: str) -> None:
         """
         Draw the specified face.
         """
         if not self.is_face_visible(face):
             return
         match face:
-            case "U":
+            case CN.U:
                 r_pos = np.matrix((-self.r_pos[0], -self.r_pos[2]))
-            case "D":
+            case CN.D:
                 r_pos = np.matrix((-self.r_pos[0], self.r_pos[2]))
-            case "R":
+            case CN.R:
                 # Rotate r_pos 90 degrees for RL faces
                 rotation_matrix = np.matrix([[0, 1], [-1, 0]])
                 r_pos = np.dot(
                     rotation_matrix,
                     np.matrix((self.r_pos[1], self.r_pos[2])).T,
                 ).T
-            case "L":
+            case CN.L:
                 # Rotate r_pos 90 degrees for RL faces
                 rotation_matrix = np.matrix([[0, 1], [-1, 0]])
                 r_pos = np.dot(
                     rotation_matrix, np.matrix((self.r_pos[1], -self.r_pos[2])).T
                 ).T
-            case "F":
+            case CN.F:
                 # Rotate r_pos 180 degrees for FB faces
                 rotation_matrix = np.matrix([[-1, 0], [0, -1]])
                 r_pos = np.dot(
                     rotation_matrix, np.matrix((self.r_pos[0], self.r_pos[1])).T
                 ).T
-            case _:
+            case CN.B:
                 # Rotate r_pos 180 degrees for FB faces
                 rotation_matrix = np.matrix([[-1, 0], [0, -1]])
                 r_pos = np.dot(
@@ -175,16 +176,16 @@ class Cubie:
                 joint="round",
             )
 
-    def project_point(self, point, r_pos, rotation, mult):
+    def project_point(self, point: list, r_pos: list, rotation: list, mult: int):
         """
         Project a 3D point to 2D.
         """
         rx, ry, rz = rotation
         offset_point = point + r_pos
         # Apply the rotation matrices to the points
-        rotated2d = np.dot(rx, offset_point.reshape((3, 1)))
+        rotated2d = np.dot(rz, offset_point.reshape((3, 1)))
         rotated2d = np.dot(ry, rotated2d)
-        rotated2d = np.dot(rz, rotated2d)
+        rotated2d = np.dot(rx, rotated2d)
 
         # Project the 3D points to 2D
         projected2d = np.dot(self.projection_matrix, rotated2d)
@@ -194,7 +195,7 @@ class Cubie:
 
         return np.array([x, y])
 
-    def render(self, rotation, mult):
+    def render(self, rotation: list, mult: int) -> None:
         """
         Render the cubie.
         """
@@ -205,7 +206,7 @@ class Cubie:
             )
 
         # Draw the faces of the cube
-        for face in FACE_ORDER:
+        for face in CN:
             self.draw_face(face)
 
 
@@ -251,12 +252,12 @@ class RubiksCube(Widget, solver.Cube):
     """
 
     faces_colors = {
-        "U": (1, 1, 1),
-        "R": (1, 0.35, 0),
-        "F": (0, 0.27, 0.68),
-        "D": (1, 0.84, 0),
-        "L": (0.72, 0.07, 0.20),
-        "B": (0, 0.61, 0.28),
+        CN.U: (1, 1, 1),
+        CN.R: (1, 0.35, 0),
+        CN.F: (0, 0.27, 0.68),
+        CN.D: (1, 0.84, 0),
+        CN.L: (0.72, 0.07, 0.20),
+        CN.B: (0, 0.61, 0.28),
     }
     """
     Color of each face.
@@ -321,7 +322,7 @@ class RubiksCube(Widget, solver.Cube):
             for cubie in self._cubies:
                 if cubie.r_pos.count(0) != 2:
                     continue
-                for face in FACE_ORDER:
+                for face in CN:
                     if not cubie.is_face_visible(face):
                         continue
                     points = cubie.get_points(face).copy()
@@ -377,7 +378,7 @@ class RubiksCube(Widget, solver.Cube):
             return True
         return super().on_touch_up(touch)
 
-    def update_cube(self, *args):
+    def update_cube(self, *args) -> None:
         """
         Update the cube's rotation and render it.
         """
