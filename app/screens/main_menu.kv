@@ -10,7 +10,7 @@
             MDActionTopAppBarButton:
                 icon: "menu"
                 id: menu_button
-                on_release: root.togle_menu()
+                on_release: app.root.ids.nav_drawer.set_state("toggle")
         MDTopAppBarTitle:
             text: "Rubik's Cube Master"
             font_style: "lalezar"

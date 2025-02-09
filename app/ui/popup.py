@@ -1,12 +1,14 @@
-from kivy.uix.popup import Popup
+from kivymd.uix.dialog import MDDialog
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
+from kivymd.uix.button import MDButton
 from kivy.properties import (
     StringProperty,
     ColorProperty,
     BooleanProperty,
     NumericProperty,
     ObjectProperty,
+    StringProperty,
 )
 from kivy.lang import Builder
 
@@ -14,7 +16,10 @@ from kivy.lang import Builder
 Builder.load_file("ui/popup.kv")
 
 
-class CustomPopup(Popup):
+class CustomPopup(MDDialog):
+    title = StringProperty("No title")
+    text = StringProperty("")
+
     @property
     def label(self) -> Label:
         return self.children[0].children[-1]
@@ -35,13 +40,12 @@ class BooleanPopup(CustomPopup):
     yes_button_text = StringProperty("Yes")
     no_button_text = StringProperty("No")
 
-    yes_button_color = ColorProperty("#E0E0E0")
-    no_button_color = ColorProperty("#E0E0E0")
+    yes_button_color = ColorProperty(None, allownone=True)
+    no_button_color = ColorProperty(None, allownone=True)
 
 
 class InputPopup(CustomPopup):
     max_characters = NumericProperty(99)
-    input_filter = ObjectProperty(None)
 
     @property
     def text_input(self, *args) -> TextInput:

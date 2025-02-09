@@ -3,58 +3,42 @@
 #:import LimitedTextInput ui.textinput.LimitedTextInput
 
 <CustomPopup>:
-    title_color: "#3F3F3F"
-    title_align: 'center'
-    title_size: dp(25)
-    size_hint: .9, None
-    height: self.label.texture_size[1] + dp(40)
-    separator_height: 0
-    background_color: 0, 0, 0, 0
-    overlay_color: 0, 0, 0, 0
-    canvas.before:
-        Color:
-            rgba: 0, 0, 0, 0.12*root._anim_alpha
-        Rectangle:
-            size: Window.size
-            pos: 0, 0
-        Color:
-            rgba: 0, 0, 0, 0.25*root._anim_alpha
-        BoxShadow:
-            pos: self.pos
-            size: self.size
-            offset: 0, -dp(3)
-            spread_radius: 0, 0
-            border_radius: dp(10), dp(10), dp(10), dp(10)
-            blur_radius: dp(15)
-        Color:
-            rgba: 1, 1, 1, 1
-        RoundedRectangle:
-            size: self.size
-            pos: self.pos
-            radius: dp(10), dp(10), dp(10), dp(10)
+    state_press: 0
+    MDDialogHeadlineText:
+        text: root.title
+        halign: "left"
+    MDDialogSupportingText:
+        text: root.text
+        halign: "left"
+        opacity: 1 if root.text else 0
+        size_hint_y: None if root.text else 0
 
 <BooleanPopup>:
-    height: self.label.texture_size[1] + dp(80)
-    BoxLayout:
-        spacing: dp(15)
-        CustomButton:
-            text: root.yes_button_text
-            background: root.yes_button_color
-            on_release: root.on_validate(True)
-        CustomButton:
-            text: root.no_button_text
-            background: root.no_button_color
+    MDDialogButtonContainer:
+        spacing: "15dp"
+        Widget:
+        MDButton:
+            style: "filled" if root.no_button_color else "elevated"
             on_release: root.on_validate(False)
+            theme_bg_color: "Custom" if root.no_button_color else "Primary"
+            md_bg_color: root.no_button_color if root.no_button_color else (0, 0, 0, 0)
+            MDButtonText:
+                text: root.no_button_text
+        MDButton:
+            style: "filled" if root.yes_button_color else "elevated"
+            on_release: root.on_validate(True)
+            theme_bg_color: "Custom" if root.yes_button_color else "Primary"
+            md_bg_color: root.yes_button_color if root.yes_button_color else (0, 0, 0, 0)
+            MDButtonText:
+                text: root.yes_button_text
 
 <InputPopup>:
-    height: self.label.texture_size[1] + dp(80)
-    LimitedTextInput:
-        id: input
-        multiline: False
-        font_size: dp(17)
-        input_filter: root.input_filter
-        max_characters: root.max_characters
-        foreground_color: "#3F3F3F"
-        cursor_color: "#3F3F3F"
-        padding: [6, self.height / 2.0 - (self.line_height / 2.0) * len(self._lines)]
-        on_text_validate: root.on_validate(self.text)
+    MDDialogContentContainer:
+        LimitedTextInput:
+            id: input
+            multiline: False
+            max_characters: root.max_characters
+            on_text_validate: root.on_validate(self.text)
+            mode: "filled"
+            MDTextFieldMaxLengthText:
+                max_text_length: root.max_characters

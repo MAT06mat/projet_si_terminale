@@ -1,10 +1,11 @@
-from kivy.uix.textinput import TextInput
+from kivymd.uix.textfield import MDTextField
 from kivy.properties import NumericProperty
 
 
-class LimitedTextInput(TextInput):
+class LimitedTextInput(MDTextField):
     max_characters = NumericProperty(99)
 
-    def on_text(self, *args):
-        if len(self.text) > self.max_characters:
-            self.text = self.text[: self.max_characters]
+    def set_text(self, instance, text):
+        if len(text) > self.max_characters:
+            text = text[: self.max_characters]
+        return super().set_text(instance, text)

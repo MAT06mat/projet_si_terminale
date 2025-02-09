@@ -1,24 +1,22 @@
 #:import MainMenu screens.main_menu
 #:import LoadMenu screens.load_menu
+#:import NoTransition kivy.uix.screenmanager.NoTransition
 
 
 <Root>:
     md_bg_color: self.theme_cls.backgroundColor
     MDNavigationLayout:
-        MDScreenManager:
+        ScreenManager:
             id: screen_manager
+            transition: NoTransition()
             MDScreen:
                 name: "MainMenu"
                 MainMenu:
                     id: main_menu
             MDScreen:
-                name: "SaveCube"
-            MDScreen:
                 name: "LoadCube"
                 LoadMenu:
                     id: load_menu
-            MDScreen:
-                name: "ResolveCube"
             MDScreen:
                 name: "ConnectBluetooth"
     MDNavigationDrawer:
@@ -32,25 +30,30 @@
 
             MDNavigationDrawerDivider:
 
-            MDNavigationDrawerItem:
+            NavigationDrawerItem:
+                selected: True
                 on_release: root.push("MainMenu")
                 MDNavigationDrawerItemLeadingIcon:
                     icon: "cube"
                 MDNavigationDrawerItemText:
                     text: "Cube view"
-            MDNavigationDrawerItem:
-                on_release: root.push("SaveCube")
+
+            NavigationDrawerItem:
+                on_release: root.save_cube()
                 MDNavigationDrawerItemLeadingIcon:
                     icon: "content-save"
                 MDNavigationDrawerItemText:
                     text: "Save cube"
-            MDNavigationDrawerItem:
+
+            NavigationDrawerItem:
                 on_release: root.push("LoadCube")
                 MDNavigationDrawerItemLeadingIcon:
                     icon: "content-save-edit"
                 MDNavigationDrawerItemText:
                     text: "Load cube"
-            MDNavigationDrawerItem:
+
+            NavigationDrawerItem:
+                selectable: False
                 on_release: main_menu.reset_logs()
                 MDNavigationDrawerItemLeadingIcon:
                     icon: "reload"
@@ -59,9 +62,44 @@
 
             MDNavigationDrawerDivider:
 
-            MDNavigationDrawerItem:
+            NavigationDrawerItem:
                 on_release: root.push("ConnectBluetooth")
                 MDNavigationDrawerItemLeadingIcon:
                     icon: "bluetooth"
                 MDNavigationDrawerItemText:
                     text: "Connect bluetooth"
+
+<Dialog>:
+    MDDialogHeadlineText:
+        text: "Reset settings?"
+    MDDialogSupportingText:
+        text: "This will reset your app preferences back to their default settings. The following accounts will also be signed out:"
+    MDDialogContentContainer:
+        orientation: "vertical"
+        MDDivider:
+        MDListItem:
+            theme_bg_color: "Custom"
+            md_bg_color: self.theme_cls.transparentColor
+            MDListItemLeadingIcon:
+                icon: "gmail"
+            MDListItemSupportingText:
+                text:"KivyMD-library@yandex.com"
+        MDListItem:
+            theme_bg_color: "Custom"
+            md_bg_color: self.theme_cls.transparentColor
+            MDListItemLeadingIcon:
+                icon: "gmail"
+            MDListItemSupportingText:
+                text: "kivydevelopment@gmail.com"
+        MDDivider:
+    MDDialogButtonContainer:
+        spacing: "8dp"
+        Widget:
+        MDButton:
+            MDButtonText:
+                text:"Cancel"
+                style: "text"
+        MDButton:
+            MDButtonText:
+                text: "Accept"
+                style: "text"

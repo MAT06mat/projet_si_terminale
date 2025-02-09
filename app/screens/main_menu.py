@@ -15,11 +15,13 @@ class MainMenu(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.bpopup = BooleanPopup(title="Delete ?", yes_button_color="#FB7B62")
-        self.bpopup.bind(answer=self.new_answer)
-        self.tpopup = InputPopup(
-            title="Save name",
+        self.bpopup = BooleanPopup(
+            title="Delete ?",
+            text="Do you really want to delete that ?",
+            yes_button_color="#FB7B62",
         )
+        self.bpopup.bind(answer=self.new_answer)
+        self.tpopup = InputPopup(title="Save name")
         self.tpopup.bind(answer=self.new_answer)
         self.dropmenu = None
 
@@ -39,15 +41,3 @@ class MainMenu(BoxLayout):
     def togle_menu(self):
         app = App.get_running_app()
         app.root.ids.nav_drawer.set_state("toggle")
-
-    def save_cube(self):
-        self.log("Cube saved !")
-        self.togle_menu()
-
-    def load_cube(self):
-        self.log("Cube loaded !")
-        self.togle_menu()
-
-    def connect_bluetooth(self):
-        self.log("Bluetooth connected !")
-        self.togle_menu()
