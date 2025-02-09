@@ -7,8 +7,9 @@ from kivy.properties import (
     ColorProperty,
 )
 from kivy.input.motionevent import MotionEvent
-from kivy.clock import Clock
 from kivy.core.window import Window
+from kivy.clock import Clock
+from kivy.metrics import dp
 import numpy as np
 from math import cos, sin, pi
 
@@ -38,6 +39,20 @@ class Cubie:
         self.projection_matrix = np.matrix([[1, 0, 0], [0, 1, 0]])
         self.projected_points = [[n, n] for n in range(len(self.points))]
 
+        self.faces_to_render = ""
+        if r_pos[2] > 0:
+            self.faces_to_render += CN.B
+        elif r_pos[2] < 0:
+            self.faces_to_render += CN.F
+        if r_pos[1] < 0:
+            self.faces_to_render += CN.D
+        if r_pos[1] > 0:
+            self.faces_to_render += CN.U
+        if r_pos[0] > 0:
+            self.faces_to_render += CN.L
+        if r_pos[0] < 0:
+            self.faces_to_render += CN.R
+
     def get_points(self, face: str) -> list[list[int]]:
         """
         Get the points of the specified face.
@@ -61,25 +76,6 @@ class Cubie:
         """
         Check if the specified face is visible.
         """
-        match face:
-            case CN.B:
-                if self.r_pos[2] <= 0:
-                    return False
-            case CN.F:
-                if self.r_pos[2] >= 0:
-                    return False
-            case CN.D:
-                if self.r_pos[1] >= 0:
-                    return False
-            case CN.U:
-                if self.r_pos[1] <= 0:
-                    return False
-            case CN.L:
-                if self.r_pos[0] <= 0:
-                    return False
-            case CN.R:
-                if self.r_pos[0] >= 0:
-                    return False
         if face in CN.B + CN.R:
             reversed = -1
         p1, p2, p3, _ = self.get_points(face)
@@ -205,12 +201,12 @@ class Cubie:
             )
 
         # Draw the faces of the cube
-        for face in CN:
+        for face in self.faces_to_render:
             self.draw_face(face)
 
 
 class RubiksCube(Widget, solver.Cube):
-    angle = ListProperty([pi / 4, 5 * pi / 4, 0])
+    angle = ListProperty([pi / 4, pi / 4, 0])
     """
     List of angles for rotation around the x, y, and z axes.
     """
@@ -321,7 +317,7 @@ class RubiksCube(Widget, solver.Cube):
             for cubie in self._cubies:
                 if cubie.r_pos.count(0) != 2:
                     continue
-                for face in CN:
+                for face in cubie.faces_to_render:
                     if not cubie.is_face_visible(face):
                         continue
                     points = cubie.get_points(face).copy()
@@ -343,8 +339,8 @@ class RubiksCube(Widget, solver.Cube):
             dx = touch.pos[0] - self._last_touch_pos[0]
             dy = touch.pos[1] - self._last_touch_pos[1]
 
-            self.angle[0] -= dy * 0.01
-            if self.max_y_rotation or True:
+            self.angle[0] -= dp(dy) * 0.01
+            if self.max_y_rotation:
                 if self.angle[0] < pi:
                     self.angle[0] = min(self.angle[0], pi / 2)
                 else:
@@ -352,7 +348,7 @@ class RubiksCube(Widget, solver.Cube):
             s = 1
             if pi / 2 < self.angle[0] < 3 * pi / 2:
                 s = -1
-            self.angle[1] += dx * 0.01 * s
+            self.angle[1] += dp(dx * s) * 0.01
             self.angle[0] %= 2 * pi
             self.angle[1] %= 2 * pi
             self.angle[2] %= 2 * pi
@@ -409,11 +405,11 @@ class RubiksCube(Widget, solver.Cube):
         rotation = (rotation_x, rotation_y, rotation_z)
 
         if self.width > self.height:
-            size = self.height / 6
+            size = self.height
         else:
-            size = self.width / 6
+            size = self.width
 
-        mult = self.scale / 100 * size
+        mult = self.scale / 600 * size
 
         self.canvas.clear()
         with self.canvas:
