@@ -247,9 +247,6 @@ class RubiksCube(Widget, solver.Cube):
         """
         Update the cube's rotation and render it.
         """
-        from time import time
-
-        t = time()
         rotation_matrix = get_rotation_matrix(self.angle)
         mult = self.get_mult()
 
@@ -294,8 +291,6 @@ class RubiksCube(Widget, solver.Cube):
                         cubie.render(combined_matrix, mult)
                 if self._turn_angle == [0, 0, 0]:
                     self._turn_face = None
-        t2 = time()
-        print(t2 - t)
 
 
 if __name__ == "__main__":

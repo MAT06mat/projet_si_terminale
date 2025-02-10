@@ -1,6 +1,7 @@
 from kivymd.uix.dialog import MDDialog
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
+from kivymd.uix.snackbar import MDSnackbar
 from kivy.properties import (
     StringProperty,
     ColorProperty,
@@ -53,3 +54,15 @@ class TextInputPopup(CustomPopup):
         self.text_input.focus = True
         self.text_input.text = ""
         return super().open(*_args, **kwargs)
+
+
+class Error(MDSnackbar):
+    text = StringProperty("")
+    current = None
+
+    def __init__(self, error, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if Error.current:
+            Error.current.dismiss()
+        Error.current = self
+        self.text = f"Error: {error}"

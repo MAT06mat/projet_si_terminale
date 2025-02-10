@@ -3,5 +3,26 @@
 <BluetoothMenu>:
     orientation: 'vertical'
     AppBar:
-        title: "Connect bluetooth"
-    Widget:
+        title: "Bluetooth"
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'center'
+        MDBoxLayout:
+            orientation: 'vertical'
+            adaptive_size: True
+            spacing: "20dp"
+            MDButton:
+                id: connection_button
+                style: "filled"
+                on_release: root.connect_bluetooth()
+                MDButtonIcon:
+                    icon: "bluetooth"
+                MDButtonText:
+                    text: "Connection"
+            MDCircularProgressIndicator:
+                id: progress
+                size_hint: None, None
+                size: "20dp", 0
+                color: self.theme_cls.primaryColor
+                pos_hint: {"center_x": .5}
+                opacity: 0

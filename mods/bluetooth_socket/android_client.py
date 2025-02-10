@@ -33,10 +33,11 @@ class AndroidClient(Client):
         if not self.socket:
             if not check_permission(Permission.BLUETOOTH_CONNECT):
                 request_permissions([Permission.BLUETOOTH_CONNECT])
-                return
+                if not check_permission(Permission.BLUETOOTH_CONNECT):
+                    raise Exception("Bluetooth permission is required")
             self.android_get_socket_stream()
             if not self.socket:
-                return
+                raise Exception("Device not paired")
             self.socket.connect()
             self.connected = True
             threading.Thread(target=self.loop).start()
