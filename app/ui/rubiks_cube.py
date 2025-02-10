@@ -254,7 +254,7 @@ class RubiksCube(Widget, solver.Cube):
         mult = self.get_mult()
 
         # Combine rotation and projection matrices
-        rotation_matrix = PROJECTION_MATRIX * rotation_matrix
+        combined_matrix = PROJECTION_MATRIX * rotation_matrix
 
         self.canvas.clear()
         with self.canvas:
@@ -263,11 +263,11 @@ class RubiksCube(Widget, solver.Cube):
             # Render cubies
             if not self._turn_face:
                 for cubie in self._cubies:
-                    cubie.render(rotation_matrix, mult)
+                    cubie.render(combined_matrix, mult)
             else:
                 for cubie in self._cubies:
                     if self._turn_face not in cubie.faces_to_render:
-                        cubie.render(rotation_matrix, mult)
+                        cubie.render(combined_matrix, mult)
                 # Render black face if there are an animation
                 for cubie in self._center_cubies:
                     if (
@@ -280,18 +280,18 @@ class RubiksCube(Widget, solver.Cube):
                             cubie.projected_points[i] = cubie.project_point(
                                 point,
                                 tuple(-i / 3 for i in cubie.r_pos),
-                                rotation_matrix,
+                                combined_matrix,
                                 mult * 3,
                             )
                             cubie.draw_face(cubie.faces_to_render)
-                # Update rotation matrix for animation
-                rotation_matrix = rotation_matrix * get_rotation_matrix(
+                # Update combined matrix for animation
+                combined_matrix = combined_matrix * get_rotation_matrix(
                     self._turn_angle
                 )
                 # Render cubies with animation after others
                 for cubie in self._cubies:
                     if self._turn_face in cubie.faces_to_render:
-                        cubie.render(rotation_matrix, mult)
+                        cubie.render(combined_matrix, mult)
                 if self._turn_angle == [0, 0, 0]:
                     self._turn_face = None
         t2 = time()
