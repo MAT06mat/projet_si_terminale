@@ -1,8 +1,4 @@
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.snackbar import (
-    MDSnackbar,
-    MDSnackbarSupportingText,
-)
 from kivy.animation import Animation
 from kivy.properties import BooleanProperty
 from kivy.metrics import dp
