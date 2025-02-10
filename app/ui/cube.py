@@ -275,17 +275,17 @@ class RubiksCube(Widget, solver.Cube):
 
     background_color = ColorProperty((0.9, 0.9, 0.9, 1))
     """
-    Background color of the widget.
+    Background color of the widget, in the format (r, g, b, a).
     """
 
     border_color = ColorProperty((0.1, 0.1, 0.1, 1))
     """
-    Color of the border lines around each face.
+    Color of the border lines around each face, in the format (r, g, b, a).
     """
 
     frame_rate = NumericProperty(1 / 60)
     """
-    Frame rate of updating cube.
+    Frame rate for updating the cube.
     """
 
     faces_colors = {
@@ -297,7 +297,12 @@ class RubiksCube(Widget, solver.Cube):
         CN.B: (0, 0.61, 0.28),
     }
     """
-    Color of each face.
+    Colors of each face of the cube.
+    """
+
+    cube_update = BooleanProperty(True)
+    """
+    Control when the cube is updated.
     """
 
     _cube_string = StringProperty("")
@@ -314,11 +319,20 @@ class RubiksCube(Widget, solver.Cube):
             for z in range(-1, 2)
             if (x, y, z) != (0, 0, 0)
         ]
+        self._cube_update()
+        self.bind(cube_update=self._cube_update)
         self.bind(_cube_string=self.update_colors)
-        Clock.schedule_interval(self.update_cube, self.frame_rate)
         self._turn_animation = Animation(
             _turn_animation_angle=[0, 0, 0], d=0.5, t="in_out_sine"
         )
+
+    def _cube_update(self, *args):
+        if self.cube_update:
+            self._update_event = Clock.schedule_interval(
+                self.update_cube, self.frame_rate
+            )
+        else:
+            self._update_event.cancel()
 
     def _is_point_in_triangle(self, px, py, ax, ay, bx, by, cx, cy) -> bool:
         """
