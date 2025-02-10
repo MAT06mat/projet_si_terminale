@@ -5,9 +5,11 @@ from kivy.properties import (
     NumericProperty,
     BooleanProperty,
     ColorProperty,
+    StringProperty,
 )
 from kivy.input.motionevent import MotionEvent
 from kivy.core.window import Window
+from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.metrics import dp
 import numpy as np
@@ -20,10 +22,11 @@ CN = solver.CubeNotation
 FACE_ORDER = solver.FACE_ORDER
 
 
-class Cubie:
+class Cubie(Widget):
     def __init__(self, parent, r_pos: list[int]):
         self.parent: RubiksCube = parent
         self.r_pos = r_pos  # Relative position
+        self.angle = [0, 0, 0]
         # Define the 8 points of the cube
         self.points = [
             np.matrix([-1, -1, 1]),
@@ -52,6 +55,7 @@ class Cubie:
             self.faces_to_render += CN.L
         if r_pos[0] < 0:
             self.faces_to_render += CN.R
+        self.update_colors()
 
     def get_points(self, face: str) -> list[list[int]]:
         """
@@ -72,6 +76,34 @@ class Cubie:
             case CN.R:
                 return [p[0], p[3], p[7], p[4]]
 
+    def get_rotation_matrix(self, angle):
+        # Define the rotation matrices
+        rotation_x = np.matrix(
+            [
+                [1, 0, 0],
+                [0, cos(angle[0]), -sin(angle[0])],
+                [0, sin(angle[0]), cos(angle[0])],
+            ]
+        )
+
+        rotation_y = np.matrix(
+            [
+                [cos(angle[1]), 0, sin(angle[1])],
+                [0, 1, 0],
+                [-sin(angle[1]), 0, cos(angle[1])],
+            ]
+        )
+
+        rotation_z = np.matrix(
+            [
+                [cos(angle[2]), -sin(angle[2]), 0],
+                [sin(angle[2]), cos(angle[2]), 0],
+                [0, 0, 1],
+            ]
+        )
+
+        return rotation_x * rotation_y * rotation_z
+
     def is_face_visible(self, face: str, reversed: int = 1) -> bool:
         """
         Check if the specified face is visible.
@@ -90,50 +122,56 @@ class Cubie:
         # The face is visible if the z component of the normal is negative
         return normal[2] < 0
 
+    def update_colors(self):
+        self.faces_color = {}
+        for face in self.faces_to_render:
+            match face:
+                case CN.U:
+                    r_pos = np.matrix((-self.r_pos[0], -self.r_pos[2]))
+                case CN.D:
+                    r_pos = np.matrix((-self.r_pos[0], self.r_pos[2]))
+                case CN.R:
+                    # Rotate r_pos 90 degrees for RL faces
+                    rotation_matrix = np.matrix([[0, 1], [-1, 0]])
+                    r_pos = np.dot(
+                        rotation_matrix,
+                        np.matrix((self.r_pos[1], self.r_pos[2])).T,
+                    ).T
+                case CN.L:
+                    # Rotate r_pos 90 degrees for RL faces
+                    rotation_matrix = np.matrix([[0, 1], [-1, 0]])
+                    r_pos = np.dot(
+                        rotation_matrix, np.matrix((self.r_pos[1], -self.r_pos[2])).T
+                    ).T
+                case CN.F:
+                    # Rotate r_pos 180 degrees for FB faces
+                    rotation_matrix = np.matrix([[-1, 0], [0, -1]])
+                    r_pos = np.dot(
+                        rotation_matrix, np.matrix((self.r_pos[0], self.r_pos[1])).T
+                    ).T
+                case CN.B:
+                    # Rotate r_pos 180 degrees for FB faces
+                    rotation_matrix = np.matrix([[-1, 0], [0, -1]])
+                    r_pos = np.dot(
+                        rotation_matrix, np.matrix((-self.r_pos[0], self.r_pos[1])).T
+                    ).T
+            r_pos //= 2
+            x = r_pos[0, 0] + 1
+            y = r_pos[0, 1] + 1
+            cube_string = self.parent.to_string(True)
+            face_index = FACE_ORDER.index(face)
+            face_colors = cube_string[face_index * 9 : face_index * 9 + 9]
+            color = face_colors[3 * y + x]
+            color = self.parent.faces_colors[color]
+            self.faces_color[face] = color
+
     def draw_face(self, face: str) -> None:
         """
         Draw the specified face.
         """
         if not self.is_face_visible(face):
             return
-        match face:
-            case CN.U:
-                r_pos = np.matrix((-self.r_pos[0], -self.r_pos[2]))
-            case CN.D:
-                r_pos = np.matrix((-self.r_pos[0], self.r_pos[2]))
-            case CN.R:
-                # Rotate r_pos 90 degrees for RL faces
-                rotation_matrix = np.matrix([[0, 1], [-1, 0]])
-                r_pos = np.dot(
-                    rotation_matrix,
-                    np.matrix((self.r_pos[1], self.r_pos[2])).T,
-                ).T
-            case CN.L:
-                # Rotate r_pos 90 degrees for RL faces
-                rotation_matrix = np.matrix([[0, 1], [-1, 0]])
-                r_pos = np.dot(
-                    rotation_matrix, np.matrix((self.r_pos[1], -self.r_pos[2])).T
-                ).T
-            case CN.F:
-                # Rotate r_pos 180 degrees for FB faces
-                rotation_matrix = np.matrix([[-1, 0], [0, -1]])
-                r_pos = np.dot(
-                    rotation_matrix, np.matrix((self.r_pos[0], self.r_pos[1])).T
-                ).T
-            case CN.B:
-                # Rotate r_pos 180 degrees for FB faces
-                rotation_matrix = np.matrix([[-1, 0], [0, -1]])
-                r_pos = np.dot(
-                    rotation_matrix, np.matrix((-self.r_pos[0], self.r_pos[1])).T
-                ).T
-        r_pos //= 2
-        cube_string = self.parent.to_string(True)
-        face_index = FACE_ORDER.index(face)
-        face_colors = cube_string[face_index * 9 : face_index * 9 + 9]
-        x = r_pos[0, 0] + 1
-        y = r_pos[0, 1] + 1
-        color = face_colors[3 * y + x]
-        Color(*self.parent.faces_colors[color])
+        Color(*self.faces_color[face])
         points = self.get_points(face)
         Mesh(
             vertices=[
@@ -175,12 +213,13 @@ class Cubie:
         """
         Project a 3D point to 2D.
         """
-        rx, ry, rz = rotation
         offset_point = point + r_pos
-        # Apply the rotation matrices to the points
-        rotated2d = np.dot(rz, offset_point.reshape((3, 1)))
-        rotated2d = np.dot(ry, rotated2d)
-        rotated2d = np.dot(rx, rotated2d)
+        r = rotation
+        if self.angle != [0, 0, 0]:
+            internal_rotation = self.get_rotation_matrix(self.angle)
+            r = rotation * internal_rotation
+
+        rotated2d = np.dot(r, offset_point.reshape((3, 1)))
 
         # Project the 3D points to 2D
         projected2d = np.dot(self.projection_matrix, rotated2d)
@@ -263,6 +302,8 @@ class RubiksCube(Widget, solver.Cube):
     Last touch position for tracking touch movement.
     """
 
+    _cube_string = StringProperty("")
+
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self._cubies = [
@@ -272,6 +313,7 @@ class RubiksCube(Widget, solver.Cube):
             for z in range(-1, 2)
             if (x, y, z) != (0, 0, 0)
         ]
+        self.bind(_cube_string=self.update_colors)
         Clock.schedule_interval(self.update_cube, self.frame_rate)
 
     def _is_point_in_triangle(self, px, py, ax, ay, bx, by, cx, cy) -> bool:
@@ -373,36 +415,36 @@ class RubiksCube(Widget, solver.Cube):
             return True
         return super().on_touch_up(touch)
 
+    def turn(self, move):
+        face = move[0]
+        for cubie in self._cubies:
+            if face in cubie.faces_to_render:
+                match face:
+                    case CN.B:
+                        cubie.angle[2] = pi / 2
+                    case CN.F:
+                        cubie.angle[2] = -pi / 2
+                    case CN.U:
+                        cubie.angle[1] = pi / 2
+                    case CN.D:
+                        cubie.angle[1] = -pi / 2
+                    case CN.L:
+                        cubie.angle[0] = pi / 2
+                    case CN.R:
+                        cubie.angle[0] = -pi / 2
+                Animation(angle=[0, 0, 0], d=0.5, t="in_out_sine").start(cubie)
+        return super().turn(move)
+
+    def update_colors(self, *args) -> None:
+        for cubie in self._cubies:
+            cubie.update_colors()
+
     def update_cube(self, *args) -> None:
         """
         Update the cube's rotation and render it.
         """
-        # Define the rotation matrices
-        rotation_x = np.matrix(
-            [
-                [1, 0, 0],
-                [0, cos(self.angle[0]), -sin(self.angle[0])],
-                [0, sin(self.angle[0]), cos(self.angle[0])],
-            ]
-        )
 
-        rotation_y = np.matrix(
-            [
-                [cos(self.angle[1]), 0, sin(self.angle[1])],
-                [0, 1, 0],
-                [-sin(self.angle[1]), 0, cos(self.angle[1])],
-            ]
-        )
-
-        rotation_z = np.matrix(
-            [
-                [cos(self.angle[2]), -sin(self.angle[2]), 0],
-                [sin(self.angle[2]), cos(self.angle[2]), 0],
-                [0, 0, 1],
-            ]
-        )
-
-        rotation = (rotation_x, rotation_y, rotation_z)
+        rotation = self._cubies[0].get_rotation_matrix(self.angle)
 
         if self.width > self.height:
             size = self.height
@@ -416,7 +458,12 @@ class RubiksCube(Widget, solver.Cube):
             Color(*self.background_color)
             Rectangle(pos=self.pos, size=self.size)
             for cubie in self._cubies:
-                cubie.render(rotation, mult)
+                if cubie.angle == [0, 0, 0]:
+                    cubie.render(rotation, mult)
+            # Render cubies with animation after other
+            for cubie in self._cubies:
+                if cubie.angle != [0, 0, 0]:
+                    cubie.render(rotation, mult)
 
 
 if __name__ == "__main__":
