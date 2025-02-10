@@ -1,18 +1,7 @@
-#:import BackAppBar ui.backAppBar
+#:import AppBar ui.app_bar
 
 <LoadMenu>:
     orientation: 'vertical'
-    MDTopAppBar:
-        type: "small"
-        size_hint_x: 1
-        MDTopAppBarLeadingButtonContainer:
-            MDActionTopAppBarButton:
-                icon: "menu"
-                id: menu_button
-                on_release: app.root.toggle_drawer()
-        MDTopAppBarTitle:
-            text: "Rubik's Cube Master"
-            font_style: "lalezar"
-            color: "#3F3F3F"
-            pos_hint: {"center_x": .5}
+    AppBar:
+        title: "Load cube"
     Widget:

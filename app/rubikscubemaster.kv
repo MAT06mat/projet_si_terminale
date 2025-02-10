@@ -1,5 +1,7 @@
 #:import MainMenu screens.main_menu
 #:import LoadMenu screens.load_menu
+#:import SettingsMenu screens.settings_menu
+#:import BluetoothMenu screens.bluetooth_menu
 #:import NoTransition kivy.uix.screenmanager.NoTransition
 
 
@@ -18,7 +20,13 @@
                 LoadMenu:
                     id: load_menu
             MDScreen:
+                name: "Settings"
+                SettingsMenu:
+                    id: settings_menu
+            MDScreen:
                 name: "ConnectBluetooth"
+                BluetoothMenu:
+                    id: bluetooth_menu
     MDNavigationDrawer:
         id: nav_drawer
         drawer_type: "modal"
@@ -52,6 +60,14 @@
                     icon: "content-save-edit"
                 MDNavigationDrawerItemText:
                     text: "Load cube"
+
+            NavigationDrawerItem:
+                on_release: root.push("Settings")
+                MDNavigationDrawerItemLeadingIcon:
+                    icon: "cog"
+                MDNavigationDrawerItemText:
+                    text: "Settings"
+
 
             NavigationDrawerItem:
                 selectable: False

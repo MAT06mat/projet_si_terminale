@@ -1,0 +1,11 @@
+<AppBar>:
+    size_hint_x: 1
+    MDTopAppBarLeadingButtonContainer:
+        MDActionTopAppBarButton:
+            icon: "menu"
+            id: menu_button
+            on_release: app.root.toggle_drawer()
+    MDTopAppBarTitle:
+        text: root.title
+        font_style: "lalezar"
+        color: "#3F3F3F"
