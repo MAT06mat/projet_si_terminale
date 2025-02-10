@@ -215,12 +215,12 @@ class Cubie(Widget):
         """
         Project a 3D point to 2D.
         """
-        offset_point = point + r_pos
         r = rotation
         if angle != [0, 0, 0]:
             internal_rotation = self.get_rotation_matrix(angle)
             r = rotation * internal_rotation
 
+        offset_point = point + r_pos
         rotated2d = np.dot(r, offset_point.reshape((3, 1)))
 
         # Project the 3D points to 2D
@@ -443,9 +443,6 @@ class RubiksCube(Widget, solver.Cube):
                         self._turn_animation_angle[0] += pi / 2
                     case CN.R:
                         self._turn_animation_angle[0] -= pi / 2
-                self._turn_animation_angle[0] %= 2 * pi
-                self._turn_animation_angle[1] %= 2 * pi
-                self._turn_animation_angle[2] %= 2 * pi
                 self._turn_animation.start(self)
         return super().turn(move)
 
@@ -465,7 +462,6 @@ class RubiksCube(Widget, solver.Cube):
         """
         Update the cube's rotation and render it.
         """
-
         rotation = self._cubies[0].get_rotation_matrix(self.angle)
         mult = self.get_mult()
 
