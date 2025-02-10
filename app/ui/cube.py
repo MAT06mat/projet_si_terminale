@@ -381,16 +381,18 @@ class RubiksCube(Widget, solver.Cube):
             dx = touch.pos[0] - self._last_touch_pos[0]
             dy = touch.pos[1] - self._last_touch_pos[1]
 
-            self.angle[0] -= dp(dy) * 0.01
+            mult = self.get_mult()
+
+            self.angle[0] -= dy / mult * 0.3
             if self.max_y_rotation:
                 if self.angle[0] < pi:
                     self.angle[0] = min(self.angle[0], pi / 2)
                 else:
                     self.angle[0] = max(self.angle[0], 3 * pi / 2)
-            s = 1
             if pi / 2 < self.angle[0] < 3 * pi / 2:
-                s = -1
-            self.angle[1] += dp(dx * s) * 0.01
+                self.angle[1] -= dx / mult * 0.3
+            else:
+                self.angle[1] += dx / mult * 0.3
             self.angle[0] %= 2 * pi
             self.angle[1] %= 2 * pi
             self.angle[2] %= 2 * pi
@@ -439,19 +441,21 @@ class RubiksCube(Widget, solver.Cube):
         for cubie in self._cubies:
             cubie.update_colors()
 
+    def get_mult(self):
+        if self.width > self.height:
+            size = self.height
+        else:
+            size = self.width
+
+        return self.scale / 600 * size
+
     def update_cube(self, *args) -> None:
         """
         Update the cube's rotation and render it.
         """
 
         rotation = self._cubies[0].get_rotation_matrix(self.angle)
-
-        if self.width > self.height:
-            size = self.height
-        else:
-            size = self.width
-
-        mult = self.scale / 600 * size
+        mult = self.get_mult()
 
         self.canvas.clear()
         with self.canvas:
