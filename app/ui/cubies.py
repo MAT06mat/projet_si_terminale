@@ -1,20 +1,44 @@
-from kivy.uix.widget import Widget
 from kivy.graphics import Color, Line, Mesh
 import numpy as np
 from math import cos, sin
 
 from imports import solver
 
-
 CN = solver.CubeNotation
 FACE_ORDER = solver.FACE_ORDER
+PROJECTION_MATRIX = np.matrix([[1, 0, 0], [0, 1, 0]])
 
 
-class Cubie(Widget):
-    def __init__(self, parent, r_pos: list[int]):
+def get_rotation_matrix(angle):
+    # Define the rotation matrices
+    rx = np.matrix(
+        [
+            [1, 0, 0],
+            [0, cos(angle[0]), -sin(angle[0])],
+            [0, sin(angle[0]), cos(angle[0])],
+        ]
+    )
+    ry = np.matrix(
+        [
+            [cos(angle[1]), 0, sin(angle[1])],
+            [0, 1, 0],
+            [-sin(angle[1]), 0, cos(angle[1])],
+        ]
+    )
+    rz = np.matrix(
+        [
+            [cos(angle[2]), -sin(angle[2]), 0],
+            [sin(angle[2]), cos(angle[2]), 0],
+            [0, 0, 1],
+        ]
+    )
+    return rx * ry * rz
+
+
+class Cubie:
+    def __init__(self, parent, r_pos: tuple[int]):
         self.parent = parent
         self.r_pos = r_pos  # Relative position
-        self.angle = [0, 0, 0]
         # Define the 8 points of the cube
         self.points = [
             np.matrix([-1, -1, 1]),
@@ -27,7 +51,6 @@ class Cubie(Widget):
             np.matrix([-1, 1, -1]),
         ]
         # Define the projection matrix
-        self.projection_matrix = np.matrix([[1, 0, 0], [0, 1, 0]])
         self.projected_points = [[n, n] for n in range(len(self.points))]
 
         self.faces_to_render = ""
@@ -64,34 +87,6 @@ class Cubie(Widget):
             case CN.R:
                 return [p[0], p[3], p[7], p[4]]
 
-    def get_rotation_matrix(self, angle):
-        # Define the rotation matrices
-        rotation_x = np.matrix(
-            [
-                [1, 0, 0],
-                [0, cos(angle[0]), -sin(angle[0])],
-                [0, sin(angle[0]), cos(angle[0])],
-            ]
-        )
-
-        rotation_y = np.matrix(
-            [
-                [cos(angle[1]), 0, sin(angle[1])],
-                [0, 1, 0],
-                [-sin(angle[1]), 0, cos(angle[1])],
-            ]
-        )
-
-        rotation_z = np.matrix(
-            [
-                [cos(angle[2]), -sin(angle[2]), 0],
-                [sin(angle[2]), cos(angle[2]), 0],
-                [0, 0, 1],
-            ]
-        )
-
-        return rotation_x * rotation_y * rotation_z
-
     def is_face_visible(self, face: str) -> bool:
         """
         Check if the specified face is visible.
@@ -121,29 +116,23 @@ class Cubie(Widget):
                     r_pos = np.matrix((-self.r_pos[0], self.r_pos[2]))
                 case CN.R:
                     # Rotate r_pos 90 degrees for RL faces
-                    rotation_matrix = np.matrix([[0, 1], [-1, 0]])
+                    r = np.matrix([[0, 1], [-1, 0]])
                     r_pos = np.dot(
-                        rotation_matrix,
+                        r,
                         np.matrix((self.r_pos[1], self.r_pos[2])).T,
                     ).T
                 case CN.L:
                     # Rotate r_pos 90 degrees for RL faces
-                    rotation_matrix = np.matrix([[0, 1], [-1, 0]])
-                    r_pos = np.dot(
-                        rotation_matrix, np.matrix((self.r_pos[1], -self.r_pos[2])).T
-                    ).T
+                    r = np.matrix([[0, 1], [-1, 0]])
+                    r_pos = np.dot(r, np.matrix((self.r_pos[1], -self.r_pos[2])).T).T
                 case CN.F:
                     # Rotate r_pos 180 degrees for FB faces
-                    rotation_matrix = np.matrix([[-1, 0], [0, -1]])
-                    r_pos = np.dot(
-                        rotation_matrix, np.matrix((self.r_pos[0], self.r_pos[1])).T
-                    ).T
+                    r = np.matrix([[-1, 0], [0, -1]])
+                    r_pos = np.dot(r, np.matrix((self.r_pos[0], self.r_pos[1])).T).T
                 case CN.B:
                     # Rotate r_pos 180 degrees for FB faces
-                    rotation_matrix = np.matrix([[-1, 0], [0, -1]])
-                    r_pos = np.dot(
-                        rotation_matrix, np.matrix((-self.r_pos[0], self.r_pos[1])).T
-                    ).T
+                    r = np.matrix([[-1, 0], [0, -1]])
+                    r_pos = np.dot(r, np.matrix((-self.r_pos[0], self.r_pos[1])).T).T
             r_pos //= 2
             x = r_pos[0, 0] + 1
             y = r_pos[0, 1] + 1
@@ -197,36 +186,26 @@ class Cubie(Widget):
                 joint="round",
             )
 
-    def project_point(
-        self, point: list, r_pos: list, rotation: list, mult: int, angle=[0, 0, 0]
-    ):
+    def project_point(self, point: list, r_pos: tuple[int], rotation: list, mult: int):
         """
-        Project a 3D point to 2D.
+        Project a 3D point to 2D using a combined transformation matrix.
         """
-        r = rotation
-        if angle != [0, 0, 0]:
-            internal_rotation = self.get_rotation_matrix(angle)
-            r = rotation * internal_rotation
-
         offset_point = point + r_pos
-        rotated2d = np.dot(r, offset_point.reshape((3, 1)))
-
-        # Project the 3D points to 2D
-        projected2d = np.dot(self.projection_matrix, rotated2d)
+        projected2d = np.dot(rotation, offset_point.reshape((3, 1)))
 
         x = int(projected2d[0, 0] * mult) + self.parent.center_x
         y = int(projected2d[1, 0] * mult) + self.parent.center_y
 
         return np.array([x, y])
 
-    def render(self, rotation: list, mult: int, angle=[0, 0, 0]) -> None:
+    def render(self, rotation: list, mult: int) -> None:
         """
         Render the cubie.
         """
         # Update projected points
         for i, point in enumerate(self.points):
             self.projected_points[i] = self.project_point(
-                point, self.r_pos, rotation, mult, angle
+                point, self.r_pos, rotation, mult
             )
 
         # Draw the faces of the cube

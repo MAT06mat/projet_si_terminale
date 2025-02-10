@@ -13,9 +13,8 @@ from kivy.animation import Animation
 from kivy.clock import Clock
 from math import pi
 
-from ui.cubies import Cubie
+from ui.cubies import Cubie, PROJECTION_MATRIX, get_rotation_matrix
 from imports import solver
-
 
 CN = solver.CubeNotation
 
@@ -80,24 +79,26 @@ class RubiksCube(Widget, solver.Cube):
 
     _cube_string = StringProperty("")
     _last_touch_pos = None
-    _turn_animation_face = None
-    _turn_animation_angle = [0, 0, 0]
+    _turn_face = None
+    _turn_angle = [0, 0, 0]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self._cubies = [
-            Cubie(self, r_pos=[2 * x, 2 * y, 2 * z])
+            Cubie(self, r_pos=(2 * x, 2 * y, 2 * z))
             for x in range(-1, 2)
             for y in range(-1, 2)
             for z in range(-1, 2)
             if (x, y, z) != (0, 0, 0)
         ]
+        self._center_cubies: list[Cubie] = []
+        for cubie in self._cubies:
+            if len(cubie.faces_to_render) == 1:
+                self._center_cubies.append(cubie)
         self._cube_update()
         self.bind(cube_update=self._cube_update)
         self.bind(_cube_string=self.update_colors)
-        self._turn_animation = Animation(
-            _turn_animation_angle=[0, 0, 0], d=0.5, t="in_out_sine"
-        )
+        self._turn_animation = Animation(_turn_angle=[0, 0, 0], d=0.5, t="in_out_sine")
 
     def _cube_update(self, *args):
         if self.cube_update:
@@ -202,10 +203,7 @@ class RubiksCube(Widget, solver.Cube):
                 self._last_face_touch
                 and (touch.time_end - touch.time_start) < 0.3
                 and touch.dpos == (0, 0)
-                and (
-                    not self._turn_animation_face
-                    or self._turn_animation_face == self._last_face_touch
-                )
+                and (not self._turn_face or self._turn_face == self._last_face_touch)
             ):
                 self.turn(self._last_face_touch)
             Window.set_system_cursor("arrow")
@@ -214,22 +212,22 @@ class RubiksCube(Widget, solver.Cube):
 
     def turn(self, move):
         face = move[0]
-        for cubie in self._cubies:
+        for cubie in self._center_cubies:
             if cubie.faces_to_render == face:
-                self._turn_animation_face = face
+                self._turn_face = face
                 match face:
                     case CN.B:
-                        self._turn_animation_angle[2] += pi / 2
+                        self._turn_angle[2] += pi / 2
                     case CN.F:
-                        self._turn_animation_angle[2] -= pi / 2
+                        self._turn_angle[2] -= pi / 2
                     case CN.U:
-                        self._turn_animation_angle[1] += pi / 2
+                        self._turn_angle[1] += pi / 2
                     case CN.D:
-                        self._turn_animation_angle[1] -= pi / 2
+                        self._turn_angle[1] -= pi / 2
                     case CN.L:
-                        self._turn_animation_angle[0] += pi / 2
+                        self._turn_angle[0] += pi / 2
                     case CN.R:
-                        self._turn_animation_angle[0] -= pi / 2
+                        self._turn_angle[0] -= pi / 2
                 self._turn_animation.start(self)
         return super().turn(move)
 
@@ -249,43 +247,55 @@ class RubiksCube(Widget, solver.Cube):
         """
         Update the cube's rotation and render it.
         """
-        rotation = self._cubies[0].get_rotation_matrix(self.angle)
+        from time import time
+
+        t = time()
+        rotation_matrix = get_rotation_matrix(self.angle)
         mult = self.get_mult()
+
+        # Combine rotation and projection matrices
+        rotation_matrix = PROJECTION_MATRIX * rotation_matrix
 
         self.canvas.clear()
         with self.canvas:
             Color(*self.background_color)
             Rectangle(pos=self.pos, size=self.size)
             # Render cubies
-            if not self._turn_animation_face:
+            if not self._turn_face:
                 for cubie in self._cubies:
-                    cubie.render(rotation, mult)
+                    cubie.render(rotation_matrix, mult)
             else:
                 for cubie in self._cubies:
-                    if self._turn_animation_face not in cubie.faces_to_render:
-                        cubie.render(rotation, mult)
+                    if self._turn_face not in cubie.faces_to_render:
+                        cubie.render(rotation_matrix, mult)
                 # Render black face if there are an animation
-                for cubie in self._cubies:
+                for cubie in self._center_cubies:
                     if (
-                        self._turn_animation_face == cubie.faces_to_render
-                        and cubie.is_face_visible(self._turn_animation_face)
+                        self._turn_face == cubie.faces_to_render
+                        and cubie.is_face_visible(self._turn_face)
                     ):
                         Color(*self.border_color)
                         # Update projected points
                         for i, point in enumerate(cubie.points):
                             cubie.projected_points[i] = cubie.project_point(
                                 point,
-                                [-i / 3 for i in cubie.r_pos],
-                                rotation,
+                                tuple(-i / 3 for i in cubie.r_pos),
+                                rotation_matrix,
                                 mult * 3,
                             )
                             cubie.draw_face(cubie.faces_to_render)
+                # Update rotation matrix for animation
+                rotation_matrix = rotation_matrix * get_rotation_matrix(
+                    self._turn_angle
+                )
                 # Render cubies with animation after others
                 for cubie in self._cubies:
-                    if self._turn_animation_face in cubie.faces_to_render:
-                        cubie.render(rotation, mult, self._turn_animation_angle)
-                if self._turn_animation_angle == [0, 0, 0]:
-                    self._turn_animation_face = None
+                    if self._turn_face in cubie.faces_to_render:
+                        cubie.render(rotation_matrix, mult)
+                if self._turn_angle == [0, 0, 0]:
+                    self._turn_face = None
+        t2 = time()
+        print(t2 - t)
 
 
 if __name__ == "__main__":
