@@ -7,7 +7,7 @@ from kivy.clock import mainthread, Clock
 from threading import Thread
 from ui.popup import Error
 
-from imports import bluetooth_socket
+from backend import BluetoothClient
 
 Builder.load_file("screens/bluetooth_menu.kv")
 
@@ -24,7 +24,7 @@ class BluetoothMenu(MDBoxLayout):
             size=(dp(20), 0), opacity=0, d=0.5, t="in_out_cubic"
         )
         self.bind(loading=self.on_loading)
-        self.client = bluetooth_socket.Client("")
+        self.client = BluetoothClient("")
 
     def on_loading(self, *args):
         if self.loading:
