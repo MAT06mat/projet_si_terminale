@@ -15,7 +15,7 @@ class BluetoothClient(bs.Client):
         Thread(target=self._async_connect).start()
 
     def _async_connect(self):
-        if self.on_succes and self.on_error:
+        if callable(self.on_succes) and callable(self.on_error):
             try:
                 super().connect()
                 self.on_succes()
