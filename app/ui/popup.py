@@ -66,3 +66,4 @@ class Error(MDSnackbar):
             Error.current.dismiss()
         Error.current = self
         self.text = f"Error: {error}"
+        self.open()

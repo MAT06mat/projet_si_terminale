@@ -3,8 +3,7 @@ from kivy.animation import Animation
 from kivy.properties import BooleanProperty
 from kivy.metrics import dp
 from kivy.lang import Builder
-from kivy.clock import mainthread, Clock
-from threading import Thread
+from kivy.clock import Clock
 from ui.popup import Error
 
 from backend import BluetoothClient
@@ -41,20 +40,14 @@ class BluetoothMenu(MDBoxLayout):
         if self.loading:
             return
         self.loading = True
-        Clock.schedule_once(self.start_thread, 0.5)
+        Clock.schedule_once(self.start_connection, 0.5)
 
-    def start_thread(self, *args):
-        Thread(target=self.bluetooth_connection_thread).start()
+    def start_connection(self, *args):
+        def on_succes():
+            Clock.schedule_once(self.toogle_loading, 0.5)
 
-    def bluetooth_connection_thread(self):
-        try:
-            self.client.connect()
-            self.bluetooth_connection_callback()
-        except Exception as e:
-            self.bluetooth_connection_callback(e)
+        def on_error(e):
+            Clock.schedule_once(self.toogle_loading, 0.5)
+            Error(e)
 
-    @mainthread
-    def bluetooth_connection_callback(self, e=None):
-        Clock.schedule_once(self.toogle_loading, 0.5)
-        if e:
-            Error(e).open()
+        self.client.connect(on_succes, on_error)
