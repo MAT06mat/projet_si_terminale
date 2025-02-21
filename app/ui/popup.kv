@@ -45,12 +45,12 @@
             MDTextFieldMaxLengthText:
                 max_text_length: root.max_characters
 
-<Error>:
+<CustomSnackbar>:
     y: dp(24)
     orientation: "horizontal"
     pos_hint: {"center_x": 0.5}
     size_hint_x: 0.5
     MDSnackbarSupportingText:
         text: root.text
-        theme_text_color: "Custom"
-        text_color: self.theme_cls.errorColor
+        theme_text_color: "Custom" if root.text_color else "Primary"
+        text_color: root.text_color if root.text_color else (0, 0, 0, 1)

@@ -26,8 +26,14 @@ class CustomPopup(MDDialog):
     answer = BooleanProperty(None, force_dispatch=True)
     _pre_answer = False
 
+    def __init__(self, title="No title", text="", on_answer=None, *args, **kwargs):
+        super().__init__(title=title, text=text, *args, **kwargs)
+        self.on_answer = on_answer
+
     def on_dismiss(self, *args):
         self.answer = self._pre_answer
+        if self.on_answer:
+            self.on_answer(self.answer)
         self._pre_answer = False
 
     def on_validate(self, answer):
@@ -39,7 +45,7 @@ class BooleanPopup(CustomPopup):
     yes_button_text = StringProperty("Yes")
     no_button_text = StringProperty("No")
 
-    yes_button_color = ColorProperty(None, allownone=True)
+    yes_button_color = ColorProperty("#FB7B62", allownone=True)
     no_button_color = ColorProperty(None, allownone=True)
 
 
@@ -56,14 +62,27 @@ class TextInputPopup(CustomPopup):
         return super().open(*_args, **kwargs)
 
 
-class Error(MDSnackbar):
+class CustomSnackbar(MDSnackbar):
     text = StringProperty("")
+    text_color = None
     current = None
 
-    def __init__(self, error, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if Error.current:
-            Error.current.dismiss()
-        Error.current = self
-        self.text = f"Error: {error}"
+    def __init__(self, text: str, *args, **kwargs):
+        super().__init__(text=text, *args, **kwargs)
+        if CustomSnackbar.current:
+            CustomSnackbar.current.dismiss()
+        CustomSnackbar.current = self
         self.open()
+
+
+class Info(CustomSnackbar):
+    pass
+
+
+class Error(CustomSnackbar):
+    text_color = ColorProperty((0, 0, 0, 1))
+
+    def __init__(self, text: str, *args, **kwargs):
+        super().__init__(text, *args, **kwargs)
+        self.text_color = self.theme_cls.errorColor
+        self.text = f"Error: {text}"

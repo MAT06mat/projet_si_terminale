@@ -18,7 +18,6 @@ class MainMenu(BoxLayout):
         self.bpopup = BooleanPopup(
             title="Delete ?",
             text="Do you really want to delete that ?",
-            yes_button_color="#FB7B62",
         )
         self.bpopup.bind(answer=self.new_answer)
         self.tpopup = TextInputPopup(title="Save name")

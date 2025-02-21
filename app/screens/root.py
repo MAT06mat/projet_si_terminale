@@ -3,7 +3,9 @@ from kivymd.uix.navigationdrawer import MDNavigationDrawerItem
 from kivymd.uix.dialog import MDDialog
 from kivy.properties import BooleanProperty
 
-from ui.popup import TextInputPopup
+from ui.popup import TextInputPopup, BooleanPopup, Info
+from ui.rubiks_cube import RubiksCube
+from backend import cubeSaves
 
 
 class NavigationDrawerItem(MDNavigationDrawerItem):
@@ -40,7 +42,24 @@ class Root(MDScreen):
         popup.bind(answer=self.on_save)
         popup.open()
 
-    def on_save(self, popup, text):
-        if text:
-            # TODO
-            self.ids.main_menu.log("New save at '%s'" % text)
+    def on_save(self, popup, save_name):
+        if not save_name:
+            return
+
+        def save(rep=True):
+            if not rep:
+                return
+            cube: RubiksCube = self.ids.main_menu.ids.cube
+            cubeSaves.put(save_name, cube.to_string())
+            self.ids.main_menu.log("New save at '%s'" % save_name)
+            Info(f'Cube successfully saved at "{save_name}"')
+
+        if cubeSaves.exists(save_name):
+            BooleanPopup(
+                title=f'Save "{save_name}" already exist, do you want to overwrite it ?',
+                text="This action cannot be reversed",
+                on_answer=save,
+            ).open()
+            self.ids.main_menu.log("Save '%s' already exist" % save_name)
+        else:
+            save()
