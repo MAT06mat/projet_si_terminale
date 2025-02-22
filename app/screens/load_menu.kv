@@ -4,13 +4,16 @@
     orientation: 'vertical'
     AppBar:
         title: "Load cube"
-    Saves:
-        id: saves
-        orientation: 'vertical'
-        adaptive_height: True
-    Widget:
+    MDScrollView:
+        do_scroll_x: False
+        Saves:
+            id: saves
+            orientation: 'vertical'
+            adaptive_height: True
 
 
 <Save>:
     MDListItemHeadlineText:
         text: root.name
+    MDListItemTrailingIcon:
+        icon: "content-save"

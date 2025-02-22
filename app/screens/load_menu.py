@@ -73,6 +73,9 @@ class Save(MDListItem):
         self.menu.dismiss()
 
         def on_rename(new_name):
+            if not new_name:
+                return
+
             def _rename(rep=True):
                 if rep:
                     cube_string = cubeSaves.get(self.name)
