@@ -116,7 +116,7 @@ class Save(MDListItem):
         )
 
     def on_release(self):
-        if self.name not in cubeSaves.keys():
+        if not cubeSaves.exists(self.name):
             return
         menu_items = [
             {
