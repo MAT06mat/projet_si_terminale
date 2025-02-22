@@ -26,9 +26,13 @@ class CustomPopup(MDDialog):
     answer = BooleanProperty(None, force_dispatch=True)
     _pre_answer = False
 
-    def __init__(self, title="No title", text="", on_answer=None, *args, **kwargs):
+    def __init__(
+        self, title="No title", text="", on_answer=None, auto_open=True, *args, **kwargs
+    ):
         super().__init__(title=title, text=text, *args, **kwargs)
         self.on_answer = on_answer
+        if auto_open:
+            self.open()
 
     def on_dismiss(self, *args):
         self.answer = self._pre_answer

@@ -38,28 +38,28 @@ class Root(MDScreen):
 
     def save_cube(self):
         self.toggle_drawer()
-        popup = TextInputPopup(title="Save name")
-        popup.bind(answer=self.on_save)
-        popup.open()
 
-    def on_save(self, popup, save_name):
-        if not save_name:
-            return
-
-        def save(rep=True):
-            if not rep:
+        def on_save(save_name):
+            if not save_name:
                 return
-            cube: RubiksCube = self.ids.main_menu.ids.cube
-            cubeSaves.put(save_name, cube.to_string())
-            self.ids.main_menu.log("New save at '%s'" % save_name)
-            Info(f'Cube successfully saved at "{save_name}"')
 
-        if cubeSaves.exists(save_name):
-            BooleanPopup(
-                title=f'Save "{save_name}" already exist, do you want to overwrite it ?',
-                text="This action cannot be reversed",
-                on_answer=save,
-            ).open()
-            self.ids.main_menu.log("Save '%s' already exist" % save_name)
-        else:
-            save()
+            def _save(rep=True):
+                if not rep:
+                    return
+                cube: RubiksCube = self.ids.main_menu.ids.cube
+                cubeSaves.put(save_name, cube.to_string())
+                self.ids.load_menu.ids.saves.add_save(save_name)
+                self.ids.main_menu.log("New save at '%s'" % save_name)
+                Info(f'Cube successfully saved at "{save_name}"')
+
+            if cubeSaves.exists(save_name):
+                BooleanPopup(
+                    title=f'Save "{save_name}" already exist, do you want to overwrite it ?',
+                    text="This action cannot be reversed",
+                    on_answer=_save,
+                )
+                self.ids.main_menu.log("Save '%s' already exist" % save_name)
+            else:
+                _save()
+
+        TextInputPopup(title="Save name", on_answer=on_save)
