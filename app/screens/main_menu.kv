@@ -13,15 +13,6 @@
             scale: 50
             cube_update: True if root.parent.parent else False
             background_color: app.theme_cls.backgroundColor
-        MDIconButton:
-            icon: "content-save-all"
-            pos: (cube.width-dp(10)-self.width, cube.height-dp(10)-self.width)
-            theme_font_size: "Custom"
-            font_size: "24sp"
-            radius: [self.height / 2, ]
-            size_hint: None, None
-            size: "52dp", "52dp"
-            on_release: app.root.save_cube()
         MDLabel:
             text: root.text
             color: "#3F3F3F"
@@ -38,12 +29,12 @@
                 icon: "delete"
                 opacity: 0 if not root.edit_mode else 1
                 disabled: not root.edit_mode
-                on_release: root.bpopup.open()
+                on_release: app.root.delete_cube()
             MDFabButton:
                 icon: "content-save-all"
                 opacity: 0 if not root.edit_mode else 1
                 disabled: not root.edit_mode
-                on_release: root.tpopup.open()
+                on_release: app.root.save_cube()
             MDFabButton:
                 icon: "pencil-outline" if not root.edit_mode else "close"
                 style: "standard"

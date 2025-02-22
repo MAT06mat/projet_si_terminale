@@ -5,6 +5,7 @@ from kivy.properties import BooleanProperty
 
 from ui.popup import TextInputPopup, BooleanPopup, Info
 from ui.rubiks_cube import RubiksCube
+from imports import solver
 from backend import cubeSaves
 
 
@@ -36,6 +37,10 @@ class Root(MDScreen):
     def toggle_drawer(self):
         self.ids.nav_drawer.set_state("toggle")
 
+    @property
+    def cube(self) -> RubiksCube:
+        return self.ids.main_menu.ids.cube
+
     def save_cube(self):
         def on_save(save_name):
             if not save_name:
@@ -43,8 +48,7 @@ class Root(MDScreen):
 
             def _save(rep=True):
                 if rep:
-                    cube: RubiksCube = self.ids.main_menu.ids.cube
-                    cubeSaves.put(save_name, cube.to_string())
+                    cubeSaves.put(save_name, self.cube.to_string())
                     self.ids.load_menu.ids.saves.add_save(save_name)
                     self.ids.main_menu.log("New save at '%s'" % save_name)
                     Info(f'Cube successfully saved at "{save_name}"')
@@ -60,3 +64,14 @@ class Root(MDScreen):
                 _save()
 
         TextInputPopup(title="Save name", on_answer=on_save)
+
+    def delete_cube(self):
+        def on_delete(rep):
+            if rep:
+                self.cube.from_string(solver.SOLVED_CUBE_STRING)
+
+        BooleanPopup(
+            title="Delete ?",
+            text="Do you realy want to delete ths cube ?",
+            on_answer=on_delete,
+        )

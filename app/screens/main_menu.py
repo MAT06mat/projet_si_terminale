@@ -13,18 +13,6 @@ class MainMenu(BoxLayout):
     text = StringProperty("Logs :")
     edit_mode = BooleanProperty(False)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.bpopup = BooleanPopup(
-            title="Delete ?",
-            text="Do you really want to delete that ?",
-            auto_open=False,
-        )
-        self.bpopup.bind(answer=self.new_answer)
-        self.tpopup = TextInputPopup(title="Save name", auto_open=False)
-        self.tpopup.bind(answer=self.new_answer)
-        self.dropmenu = None
-
     def new_answer(self, popup, answer):
         self.log(answer)
 
