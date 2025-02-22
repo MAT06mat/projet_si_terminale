@@ -37,8 +37,6 @@ class Root(MDScreen):
         self.ids.nav_drawer.set_state("toggle")
 
     def save_cube(self):
-        self.toggle_drawer()
-
         def on_save(save_name):
             if not save_name:
                 return

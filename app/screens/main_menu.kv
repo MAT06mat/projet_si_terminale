@@ -13,6 +13,15 @@
             scale: 50
             cube_update: True if root.parent.parent else False
             background_color: app.theme_cls.backgroundColor
+        MDIconButton:
+            icon: "content-save-all"
+            pos: (cube.width-dp(10)-self.width, cube.height-dp(10)-self.width)
+            theme_font_size: "Custom"
+            font_size: "24sp"
+            radius: [self.height / 2, ]
+            size_hint: None, None
+            size: "52dp", "52dp"
+            on_release: app.root.save_cube()
         MDLabel:
             text: root.text
             color: "#3F3F3F"

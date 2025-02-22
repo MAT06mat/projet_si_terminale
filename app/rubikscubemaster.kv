@@ -48,19 +48,11 @@
                     text: "Cube view"
 
             NavigationDrawerItem:
-                selectable: False
-                on_release: root.save_cube()
+                on_release: root.push("LoadCube")
                 MDNavigationDrawerItemLeadingIcon:
                     icon: "content-save"
                 MDNavigationDrawerItemText:
-                    text: "Save cube"
-
-            NavigationDrawerItem:
-                on_release: root.push("LoadCube")
-                MDNavigationDrawerItemLeadingIcon:
-                    icon: "content-save-edit"
-                MDNavigationDrawerItemText:
-                    text: "Load cube"
+                    text: "Saves"
 
             NavigationDrawerItem:
                 on_release: root.push("Settings")
