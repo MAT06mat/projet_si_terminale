@@ -44,13 +44,12 @@ class Root(MDScreen):
                 return
 
             def _save(rep=True):
-                if not rep:
-                    return
-                cube: RubiksCube = self.ids.main_menu.ids.cube
-                cubeSaves.put(save_name, cube.to_string())
-                self.ids.load_menu.ids.saves.add_save(save_name)
-                self.ids.main_menu.log("New save at '%s'" % save_name)
-                Info(f'Cube successfully saved at "{save_name}"')
+                if rep:
+                    cube: RubiksCube = self.ids.main_menu.ids.cube
+                    cubeSaves.put(save_name, cube.to_string())
+                    self.ids.load_menu.ids.saves.add_save(save_name)
+                    self.ids.main_menu.log("New save at '%s'" % save_name)
+                    Info(f'Cube successfully saved at "{save_name}"')
 
             if cubeSaves.exists(save_name):
                 BooleanPopup(
