@@ -159,7 +159,7 @@ class Cube:
         """Solve a cube and return the solution"""
         if self.is_solve():
             return "Already solve"
-        return kociemba.solve(self._cube.to_kociemba(), patternstring, max_depth)
+        return kociemba.solve(self.to_kociemba(), patternstring, max_depth)
 
     def random(self, nb: int = random.randint(20, 30)) -> None:
         """Randomize the cube"""
