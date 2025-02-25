@@ -3,6 +3,7 @@ kociemba
 Pillow
 matplotlib
 git+https://github.com/pybluez/pybluez.git#egg=pybluez
+cython
 pyjnius
 https://github.com/kivymd/KivyMD/archive/master.zip
 materialyoucolor
