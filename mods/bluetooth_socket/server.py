@@ -32,7 +32,7 @@ class Server(SocketConnection):
                     continue
                 print("Loop stopped")
                 return
-            self.process_data()
+            self.process_data(buffer)
 
     def recv(self, bufsize):
         return self.client.recv(bufsize)
