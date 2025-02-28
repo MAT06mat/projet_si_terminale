@@ -48,6 +48,6 @@ class BluetoothMenu(MDBoxLayout):
 
         def on_error(e):
             Clock.schedule_once(self.toogle_loading, 0.5)
-            Error(e)
+            Error(str(e))
 
         self.client.connect(on_succes, on_error)

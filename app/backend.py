@@ -26,7 +26,7 @@ class BluetoothClient(bs.Client):
                 self.on_error = None
 
 
-bluetoothClient = BluetoothClient("")
+bluetoothClient = BluetoothClient("B8:27:EB:80:0B:6D")
 
 
 class Store(JsonStore):
