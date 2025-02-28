@@ -60,7 +60,7 @@ class Server(SocketConnection):
             profiles=[SERIAL_PORT_PROFILE],
         )
         print("server-online")
-        threading.Thread(target=self.loop).start()
+        threading.Thread(target=self.loop, daemon=True).start()
 
     def deconnect(self):
         # Stop server

@@ -40,7 +40,7 @@ class AndroidClient(Client):
                 raise Exception("Device not paired")
             self.socket.connect()
             self.connected = True
-            threading.Thread(target=self.loop).start()
+            threading.Thread(target=self.loop, daemon=True).start()
 
     def deconnect(self):
         # Disconnect from server

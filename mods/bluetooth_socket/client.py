@@ -50,7 +50,7 @@ class Client(SocketConnection):
         self.socket.connect((self.address, self.port))
         print("client-connected")
         self.connected = True
-        threading.Thread(target=self.loop).start()
+        threading.Thread(target=self.loop, daemon=True).start()
 
     def deconnect(self):
         # Disconnect from server

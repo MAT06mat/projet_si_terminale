@@ -12,7 +12,7 @@ class BluetoothClient(bs.Client):
     def connect(self, on_succes, on_error):
         self.on_succes = mainthread(on_succes)
         self.on_error = mainthread(on_error)
-        Thread(target=self._async_connect).start()
+        Thread(target=self._async_connect, daemon=True).start()
 
     def _async_connect(self):
         if callable(self.on_succes) and callable(self.on_error):
