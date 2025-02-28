@@ -49,7 +49,7 @@ class Server(SocketConnection):
         if self.is_server_connected:
             return
         self.is_server_connected = True
-        self.socket.bind(("", PORT_ANY))
+        self.socket.bind(("", 4))
         self.socket.listen(1)
         self.port = self.socket.getsockname()[1]
         advertise_service(
