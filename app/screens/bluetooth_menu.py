@@ -6,6 +6,7 @@ from kivy.lang import Builder
 from kivy.clock import Clock
 from ui.popup import Error
 
+from imports import bluetooth_socket
 from backend import bluetoothClient
 
 Builder.load_file("screens/bluetooth_menu.kv")

@@ -34,7 +34,10 @@ class SocketConnection(ABC):
                     fid = request["GET"]["fid"]
                     value = self.__getattribute__(request["GET"]["var"])
                     response = Request.call("callback", fid, value)
-                    self.send(response)
+                    try:
+                        self.send(response)
+                    except (ConnectionAbortedError, OSError) as e:
+                        pass
 
             # Handle SET requests
             if "SET" in request:
