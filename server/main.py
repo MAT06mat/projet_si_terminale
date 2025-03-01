@@ -28,6 +28,13 @@ def test_bluetooth():
     server.deconnect()
 
 
+def test_camera():
+    from server.camera import Camera
+
+    camera = Camera()
+    img = camera.get_image()
+
+
 if __name__ == "__main__":
     # test_cube()
     # test_image_analyser()
