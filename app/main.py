@@ -16,7 +16,7 @@ if __name__ == "__main__":
         def build(self):
             self.theme_cls: ThemeManager
             self.theme_cls.theme_style = "Light"
-            self.theme_cls.primary_palette = "Blue"
+            self.theme_cls.primary_palette = "Skyblue"
             LabelBase.register(
                 name="lalezar",
                 fn_regular="assets/fonts/Lalezar-Regular.ttf",
