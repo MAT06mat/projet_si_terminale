@@ -5,6 +5,8 @@ from PIL import Image
 class Camera(Picamera2):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        config = self.create_still_configuration()
+        self.configure(config)
         self.start()
 
     def get_image(self):

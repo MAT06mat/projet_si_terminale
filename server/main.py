@@ -35,8 +35,22 @@ def test_camera():
     img = camera.get_image()
 
 
+def test_motors():
+    from server.motors import Motors
+    from time import sleep
+
+    m = Motors().get_motor(1)
+    m.init()
+    sleep(1)
+    for i in range(8):
+        m.turn()
+        sleep(1)
+
+
 if __name__ == "__main__":
     # test_cube()
     # test_image_analyser()
-    test_bluetooth()
+    # test_bluetooth()
+    # test_camera()
+    test_motors()
     pass
