@@ -12,8 +12,8 @@ class FaceAnalyser:
     ORANGE = "L"
     BLUE = "B"
 
-    def __init__(self, img: Image.Image, x: int, y: int, shape: int, squares: int):
-        self.img = img
+    def __init__(self, x: int, y: int, shape: int, squares: int):
+        self.img = None
         self.x = x
         self.y = y
         self.shape = shape
@@ -73,7 +73,8 @@ class FaceAnalyser:
         f = {face[4]: f}
         return f
 
-    def analyse(self):
+    def analyse(self, img: Image.Image):
+        self.img = img
         face = ""
         for j in range(-1, 2):
             for i in range(-1, 2):

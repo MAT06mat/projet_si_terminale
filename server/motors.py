@@ -3,7 +3,19 @@ from pypot.dynamixel import Dxl320IO
 # Doc : https://poppy-project.github.io/pypot/pypot.dynamixel.html
 
 
+class Dxl320Colors:
+    red = "red"
+    green = "green"
+    yellow = "yellow"
+    blue = "blue"
+    pink = "pink"
+    cyan = "cyan"
+    white = "white"
+
+
 class Dxl320:
+    colors = Dxl320Colors
+
     def __init__(self, dxl_io, id, available_pos=[-135, -45, 45, 135], default_pos=45):
         self._dxl_io: Motors = dxl_io
         self.id = id
@@ -14,6 +26,7 @@ class Dxl320:
         if _pos in self.available_pos:
             self._pos = _pos
         self._dxl_io.set_joint_mode([self.id])
+        self._dxl_io.switch_led_off([self.id])
         self._dxl_io.set_goal_position({self.id: self._pos})
 
     def turn(self, number: int = 1):
@@ -23,6 +36,15 @@ class Dxl320:
             i %= len(self.available_pos)
             self._pos = self.available_pos[i]
         self._dxl_io.set_goal_position({self.id: self._pos})
+
+    def switch_led_on(self):
+        self._dxl_io.switch_led_on([self.id])
+
+    def switch_led_off(self):
+        self._dxl_io.switch_led_off([self.id])
+
+    def set_LED_color(self, color: Dxl320Colors):
+        self._dxl_io.set_LED_color({self.id: color})
 
 
 class Motors(Dxl320IO):
