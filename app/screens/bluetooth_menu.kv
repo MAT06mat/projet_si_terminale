@@ -14,7 +14,8 @@
             MDButton:
                 id: connection_button
                 style: "filled"
-                on_release: root.connect_bluetooth()
+                disabled: root.connected
+                on_release: None if self.disabled else root.connect_bluetooth()
                 MDButtonIcon:
                     icon: "bluetooth"
                 MDButtonText:
