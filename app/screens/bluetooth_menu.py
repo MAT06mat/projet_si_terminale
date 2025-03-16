@@ -46,6 +46,7 @@ class BluetoothMenu(MDBoxLayout):
     def start_connection(self, *args):
         def on_succes():
             Clock.schedule_once(self.toogle_loading, 0.5)
+            self.client.send(bluetooth_socket.Request.call("start_solver"))
 
         def on_error(e):
             Clock.schedule_once(self.toogle_loading, 0.5)

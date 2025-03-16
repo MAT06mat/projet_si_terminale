@@ -1,35 +1,183 @@
 from imports import bluetooth_socket as bs, analyser as a, solver as s
-from camera import Camera
-from motors import Motors
+from time import sleep
+
+
+CN = s.CubeNotation
 
 
 class RubiksCubeSolver:
-    def __init__(self):
+    solving = False
+    mapping = {face: face for face in s.FACE_ORDER}
+    cube_pos = s.FACE_ORDER
+
+    def __init__(self, virtual=False):
+        self.virtual = virtual
         print("============ INIT RCM ============")
-        # Init motors
-        print("-> Init motors")
-        motors = Motors()
-        self.m1 = motors.get_motor(1)
-        self.m2 = motors.get_motor(2)
+        if not virtual:
+            from camera import Camera
+            from motors import Motors
 
-        self.m2.switch_led_on()
-        self.m2.set_LED_color(self.m2.colors.green)
+            # Init motors
+            print("-> Init motors")
+            motors = Motors()
+            self.m1 = motors.get_motor(1)
+            self.m2 = motors.get_motor(2)
+            self.m1.compliant = True
+            self.m2.compliant = True
 
-        # Init bluetooth
-        print("-> Init bluetooth")
-        self.server = bs.Server()
+            # Init bluetooth
+            print("-> Init bluetooth")
+            self.server = bs.Server()
 
-        # Init analyser
-        print("-> Init analyser")
-        self.anayser = a.FaceAnalyser(x=400, y=230, shape=120, squares=20)
+            # Init camera
+            print("-> Init camera")
+            self.camera = Camera()
 
         # Init cube solver
         print("-> Init cube")
         self.cube = s.Cube()
 
-        # Init camera
-        print("-> Init camera")
-        self.camera = Camera()
+        # Init analyser
+        print("-> Init analyser")
+        self.anayser = a.FaceAnalyser(x=400, y=230, shape=120, squares=20)
 
-        self.m2.switch_led_off()
         print("========= INIT COMPLETED =========")
+
+    def run_server(self):
+        self.server.public_vars[self.start_solver.__name__] = self.start_solver
+        self.server.public_vars[self.stop_solver.__name__] = self.stop_solver
+        self.server.connect()
+
+    def continue_solving(self):
+        if not self.solving:
+            raise Exception("Solving is stopped")
+
+    def start_solver(self, *args):
+        self.solving = True
+        try:
+            self.solve()
+        except Exception as e:
+            print(e)
+
+    def solve(self):
+        if not self.virtual:
+            self.m1.compliant = False
+            self.m2.compliant = False
+
+            self.m2.init()
+            sleep(1)
+            self.continue_solving()
+            self.m1.init()
+            sleep(1)
+
+        # Scan cube
+        cube_string = self.scan_cube()
+
+        # Cube resolution
+        self.cube.from_string(cube_string)
+        if self.cube.is_solve():
+            return
+        solution = self.cube.solve()
+
+        # Do mouvments
+        for mouvment in solution.split():
+            self.mouv(mouvment)
+
+        if not self.virtual:
+            self.m1.compliant = True
+            self.m2.compliant = True
+
+    def stop_solver(self, *args):
+        self.solving = False
+
+    def scan_cube(self):
+        faces = {}
+        for i in "FLBR":
+            faces[i] = self.scan_face(i)
+            self.turn_cube()
+        self.flip_cube()
+        faces["U"] = self.scan_face("U")
+        self.flip_cube(2)
+        faces["D"] = self.scan_face("D")
+
+        # Create mapping
+        faces_map = {}
+        for relative_face, face in faces.items():
+            faces_map[face[0]] = relative_face
+        mapping = str.maketrans(faces_map)
+        self.mapping = mapping
+
+        # Use mapping
+        for face in faces:
+            faces[face] = faces[face][1].translate(mapping)
+
+        return "".join((faces[face] for face in s.FACE_ORDER))
+
+    def scan_face(self, f) -> dict[str:str]:
+        """img = self.camera.get_image()
+        face = self.anayser.analyse(img)"""
+        face = {
+            "F": ["F", "DLLBBFFF"],
+            "L": ["L", "FFFLLLUU"],
+            "B": ["B", "RRUBBBBB"],
+            "R": ["R", "FFBDDRRR"],
+            "U": ["U", "RDDUUURR"],
+            "D": ["D", "DDUULLLD"],
+        }[f]
+        return face
+
+    def mouv(self, mouvment):
+        mouv, num = mouvment[0], mouvment[-1]
+        match num:
+            case "'":
+                num = 3
+            case "2":
+                num = 2
+            case _:
+                num = 1
+
+        match self.cube_pos.index(mouv):
+            case 0:
+                self.flip_cube(2)
+            case 1:
+                self.turn_cube(3)
+                self.flip_cube()
+            case 2:
+                self.flip_cube()
+            case 4:
+                self.turn_cube()
+                self.flip_cube()
+            case 5:
+                self.turn_cube(2)
+                self.flip_cube()
+
+        self.turn_face(num)
+
+    def flip_cube(self, num=1):
+        self.continue_solving()
+        num %= 4
+        for i in range(num):
+            self.cube_pos = "".join(self.cube_pos[i] for i in [5, 1, 0, 2, 4, 3])
+        # TODO
+        # Motors flip cube
+
+    def turn_cube(self, num=1):
+        self.continue_solving()
+        num %= 4
+        for i in range(num):
+            self.cube_pos = "".join(self.cube_pos[i] for i in [0, 2, 4, 3, 5, 1])
+        # TODO
+        # Motors turn cube
+
+    def turn_face(self, num=1):
+        self.continue_solving()
+        num %= 4
+        for i in range(num):
+            self.cube.turn(self.cube_pos[3])
+        # TODO
+        # Motors turn face
+
+
+rcm = RubiksCubeSolver(virtual=True)
+rcm.start_solver()
+print(rcm.cube.is_solve())

@@ -1,9 +1,10 @@
 from mods.bluetooth_socket.request import Request
 from abc import ABC, abstractmethod
+from threading import Thread
 
 
 class SocketConnection(ABC):
-    public_vars = ["callback"]
+    public_vars = {}
     is_server = False
     uuid = "00001101-0000-1000-8000-00805F9B34FB"
 
@@ -11,6 +12,7 @@ class SocketConnection(ABC):
         # Set the request length for the Request class
         self.request_lenght = request_lenght
         Request.REQUEST_LENGHT = request_lenght
+        self.public_vars["callback"] = self.callback
 
     @abstractmethod
     def loop(self):
@@ -25,14 +27,14 @@ class SocketConnection(ABC):
             # Handle CALL requests
             if "CALL" in request:
                 if request["CALL"]["fname"] in self.public_vars:
-                    func = self.__getattribute__(request["CALL"]["fname"])
-                    func(*request["CALL"]["args"])
+                    func = self.public_vars[request["CALL"]["fname"]]
+                    Thread(target=lambda x: func(*request["CALL"]["args"]))
 
             # Handle GET requests
             if "GET" in request:
                 if request["GET"]["var"] in self.public_vars:
                     fid = request["GET"]["fid"]
-                    value = self.__getattribute__(request["GET"]["var"])
+                    value = self.public_vars[request["GET"]["var"]]
                     response = Request.call("callback", fid, value)
                     try:
                         self.send(response)
@@ -42,7 +44,7 @@ class SocketConnection(ABC):
             # Handle SET requests
             if "SET" in request:
                 if request["SET"]["var"] in self.public_vars:
-                    self.__setattr__(request["SET"]["var"], request["SET"]["value"])
+                    self.public_vars[request["SET"]["var"]] = request["SET"]["value"]
 
     def callback(self, *args):
         # Handle callback

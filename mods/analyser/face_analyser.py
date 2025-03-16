@@ -70,7 +70,7 @@ class FaceAnalyser:
         f += face[5]
         f += face[6:9][::-1]
         f += face[3]
-        f = {face[4]: f}
+        f = [face[4], f]
         return f
 
     def analyse(self, img: Image.Image):
