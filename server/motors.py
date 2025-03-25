@@ -1,9 +1,12 @@
 from pypot.dynamixel import Dxl320IO as MotorsController
+from enum import StrEnum
+from time import sleep
+
 
 # Doc : https://poppy-project.github.io/pypot/pypot.dynamixel.html
 
 
-class LedColors:
+class LedColors(StrEnum):
     red = "red"
     green = "green"
     yellow = "yellow"
@@ -53,7 +56,8 @@ class Motor:
         if value in self.available_pos:
             self._pos = value
             self._dxl_io.set_pos(self.id, self._pos)
-            while self._dxl_io.is_moving([self.id]) != [False]:
+            sleep(0.01)
+            while self._dxl_io.is_moving([self.id])[0]:
                 continue
 
     @property
@@ -73,7 +77,7 @@ class Motor:
     @property
     def led(self) -> bool:
         """If the led is on"""
-        return self.is_led_on([self.id])[0]
+        return self._dxl_io.is_led_on([self.id])[0]
 
     @led.setter
     def led(self, value):
