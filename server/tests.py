@@ -39,7 +39,7 @@ def test_motors():
     from server.motors import Motors
     from time import sleep
 
-    m = Motors().get_motor(1)
+    m = Motors().get_turn_motor(1)
     m.init()
     sleep(1)
     for i in range(8):
