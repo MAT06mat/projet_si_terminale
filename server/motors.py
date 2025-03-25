@@ -3,7 +3,7 @@ from pypot.dynamixel import Dxl320IO as MotorsController
 # Doc : https://poppy-project.github.io/pypot/pypot.dynamixel.html
 
 
-class Dxl320Colors:
+class LedColors:
     red = "red"
     green = "green"
     yellow = "yellow"
@@ -13,8 +13,8 @@ class Dxl320Colors:
     white = "white"
 
 
-class Dxl320:
-    colors = Dxl320Colors
+class Motor:
+    colors = LedColors
     _led_color = None
     _control_mode = None
     available_pos = []
@@ -53,6 +53,8 @@ class Dxl320:
         if value in self.available_pos:
             self._pos = value
             self._dxl_io.set_pos(self.id, self._pos)
+            while self._dxl_io.is_moving([self.id]) != [False]:
+                continue
 
     @property
     def compliant(self) -> bool:
@@ -118,12 +120,12 @@ class Dxl320:
         self._control_mode = value
 
 
-class FlipMotor(Dxl320):
-    available_pos = [-135, 0, 135]
-    default_pos = -135
+class FlipMotor(Motor):
+    available_pos = [-125, -65, 25, 105]
+    default_pos = -125
 
 
-class TurnMotor(Dxl320):
+class TurnMotor(Motor):
     available_pos = [-135, -45, 45, 135]
     default_pos = 45
 
@@ -142,12 +144,11 @@ class Motors(MotorsController):
             port, baudrate, timeout, use_sync_read, error_handler_cls, convert
         )
 
-    def get_motor(self, id: int):
-        match id:
-            case 1:
-                return TurnMotor(self, 1)
-            case 2:
-                return FlipMotor(self, 2)
+    def get_turn_motor(self, id: int) -> TurnMotor:
+        return TurnMotor(self, id)
+
+    def get_flip_motor(self, id: int) -> FlipMotor:
+        return FlipMotor(self, id)
 
     def set_pos(self, id: int, pos: int):
         self.set_goal_position({id: pos})

@@ -20,8 +20,8 @@ class RubiksCubeSolver:
             # Init motors
             print("-> Init motors")
             motors = Motors()
-            self.m1 = motors.get_motor(1)
-            self.m2 = motors.get_motor(2)
+            self.m1 = motors.get_turn_motor(1)
+            self.m2 = motors.get_flip_motor(2)
             self.m1.compliant = True
             self.m2.compliant = True
 
@@ -158,26 +158,36 @@ class RubiksCubeSolver:
         num %= 4
         for i in range(num):
             self.cube_pos = "".join(self.cube_pos[i] for i in [5, 1, 0, 2, 4, 3])
-        # TODO
         # Motors flip cube
+        if not self.virtual:
+            self.m2.pos = 25
+            self.m2.pos = 105
+            self.m2.pos = 25
+            self.m2.pos = -65
 
     def turn_cube(self, num=1):
         self.continue_solving()
         num %= 4
         for i in range(num):
             self.cube_pos = "".join(self.cube_pos[i] for i in [0, 2, 4, 3, 5, 1])
-        # TODO
         # Motors turn cube
+        if not self.virtual:
+            self.m2.pos = -65
+            self.m1.turn(num)
 
     def turn_face(self, num=1):
         self.continue_solving()
         num %= 4
         for i in range(num):
             self.cube.turn(self.cube_pos[3])
-        # TODO
         # Motors turn face
+        if not self.virtual:
+            self.m2.pos = 25
+            self.m1.turn(num)
+            self.m2.pos = -65
 
 
-rcm = RubiksCubeSolver(virtual=True)
-rcm.start_solver()
-print(rcm.cube.is_solve())
+if __name__ == "__main__":
+    rcm = RubiksCubeSolver(virtual=True)
+    rcm.start_solver()
+    print(rcm.cube.is_solve())
