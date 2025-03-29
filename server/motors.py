@@ -1,9 +1,29 @@
 from pypot.dynamixel import Dxl320IO as MotorsController
 from enum import StrEnum
 from time import sleep
+from functools import wraps
 
 
 # Doc : https://poppy-project.github.io/pypot/pypot.dynamixel.html
+
+
+def do():
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            result = None
+            for i in range(5):
+                try:
+                    result = func(*args, **kwargs)
+                    break
+                except Exception as e:
+                    if i == 4:
+                        print(func, "fail after 5 try")
+            return result
+
+        return wrapper
+
+    return decorator
 
 
 class LedColors(StrEnum):
@@ -50,6 +70,7 @@ class Motor:
         return self._pos
 
     @pos.setter
+    @do
     def pos(self, value):
         if self._pos == value:
             return
@@ -61,11 +82,13 @@ class Motor:
                 continue
 
     @property
+    @do
     def compliant(self) -> bool:
         """If compliant, the torque is disable"""
         return not self._dxl_io.is_torque_enabled([self.id])[0]
 
     @compliant.setter
+    @do
     def compliant(self, value):
         if self.compliant == value:
             return
@@ -75,11 +98,13 @@ class Motor:
             self._dxl_io.enable_torque([self.id])
 
     @property
+    @do
     def led(self) -> bool:
         """If the led is on"""
         return self._dxl_io.is_led_on([self.id])[0]
 
     @led.setter
+    @do
     def led(self, value):
         if self.led == value:
             return
@@ -94,6 +119,7 @@ class Motor:
         return self._led_color
 
     @led_color.setter
+    @do
     def led_color(self, value) -> str:
         if value == self._led_color or value not in self.colors:
             return
@@ -106,6 +132,7 @@ class Motor:
         return self._control_mode
 
     @control_mode.setter
+    @do
     def control_mode(self, value) -> str:
         if value == self._control_mode or value in ("joint", "wheel"):
             return
@@ -154,8 +181,10 @@ class Motors(MotorsController):
     def get_flip_motor(self, id: int) -> FlipMotor:
         return FlipMotor(self, id)
 
+    @do
     def set_pos(self, id: int, pos: int):
         self.set_goal_position({id: pos})
 
+    @do
     def get_pos(self, ids: list) -> list[int]:
         return self.get_present_position(ids)
