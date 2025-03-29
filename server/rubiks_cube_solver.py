@@ -1,4 +1,5 @@
 from imports import bluetooth_socket as bs, analyser as a, solver as s
+from time import time
 
 
 CN = s.CubeNotation
@@ -11,6 +12,7 @@ class RubiksCubeSolver:
 
     def __init__(self, virtual=False):
         self.virtual = virtual
+        self.in_test = False
         print("============ INIT RCM ============")
         if not virtual:
             from camera import Camera
@@ -47,6 +49,14 @@ class RubiksCubeSolver:
         self.server.public_vars[self.stop_solver.__name__] = self.stop_solver
         self.server.connect()
 
+    def test(self):
+        self.in_test = True
+        t = time()
+        self.start_solver()
+        print("End after", time() - t, "sec")
+        print("Cube is solve :", self.cube.is_solve())
+        self.in_test = False
+
     def continue_solving(self):
         if not self.solving:
             raise Exception("Solving is stopped")
@@ -57,6 +67,7 @@ class RubiksCubeSolver:
             self.solve()
         except Exception as e:
             print(e)
+        self.solving = False
 
     def solve(self):
         if not self.virtual:
@@ -75,6 +86,9 @@ class RubiksCubeSolver:
         if self.cube.is_solve():
             return
         solution = self.cube.solve()
+
+        if self.in_test:
+            print("Solution find in", len(solution.split()), "moves")
 
         # Do mouvments
         for mouvment in solution.split():
@@ -114,12 +128,12 @@ class RubiksCubeSolver:
         """img = self.camera.get_image()
         face = self.anayser.analyse(img)"""
         face = {
-            "F": ["F", "DLLBBFFF"],
-            "L": ["L", "FFFLLLUU"],
-            "B": ["B", "RRUBBBBB"],
-            "R": ["R", "FFBDDRRR"],
-            "U": ["U", "RDDUUURR"],
-            "D": ["D", "DDUULLLD"],
+            "F": ["L", "BFFRUDFL"],
+            "L": ["U", "FBRDDRDL"],
+            "B": ["R", "LFDULFDU"],
+            "R": ["D", "ULBBBDRU"],
+            "U": ["F", "LUUBLLUD"],
+            "D": ["B", "RRFFRRBB"],
         }[f]
         return face
 
@@ -157,10 +171,8 @@ class RubiksCubeSolver:
             self.cube_pos = "".join(self.cube_pos[i] for i in [5, 1, 0, 2, 4, 3])
         # Motors flip cube
         if not self.virtual:
-            self.m2.pos = 25
             self.m2.pos = 105
             self.m2.pos = 25
-            self.m2.pos = -65
 
     def turn_cube(self, num=1):
         self.continue_solving()
@@ -171,6 +183,7 @@ class RubiksCubeSolver:
         if not self.virtual:
             self.m2.pos = -65
             self.m1.turn(num)
+            self.m2.pos = 25
 
     def turn_face(self, num=1):
         self.continue_solving()
@@ -181,10 +194,8 @@ class RubiksCubeSolver:
         if not self.virtual:
             self.m2.pos = 25
             self.m1.turn(num)
-            self.m2.pos = -65
 
 
 if __name__ == "__main__":
     rcm = RubiksCubeSolver(virtual=True)
-    rcm.start_solver()
-    print(rcm.cube.is_solve())
+    rcm.test()
