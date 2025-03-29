@@ -7,23 +7,20 @@ from functools import wraps
 # Doc : https://poppy-project.github.io/pypot/pypot.dynamixel.html
 
 
-def do():
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            result = None
-            for i in range(5):
-                try:
-                    result = func(*args, **kwargs)
-                    break
-                except Exception as e:
-                    if i == 4:
-                        print(func, "fail after 5 try")
-            return result
+def do(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        result = None
+        for i in range(5):
+            try:
+                result = func(*args, **kwargs)
+                break
+            except Exception as e:
+                if i == 4:
+                    print(func, "fail after 5 try", e)
+        return result
 
-        return wrapper
-
-    return decorator
+    return wrapper
 
 
 class LedColors(StrEnum):
@@ -70,7 +67,6 @@ class Motor:
         return self._pos
 
     @pos.setter
-    @do
     def pos(self, value):
         if self._pos == value:
             return
@@ -78,17 +74,16 @@ class Motor:
             self._pos = value
             self._dxl_io.set_pos(self.id, self._pos)
             sleep(0.01)
-            while self._dxl_io.is_moving([self.id])[0]:
+            while do(self._dxl_io.is_moving)([self.id])[0]:
                 continue
 
     @property
-    @do
     def compliant(self) -> bool:
         """If compliant, the torque is disable"""
-        return not self._dxl_io.is_torque_enabled([self.id])[0]
+        return not do(self._dxl_io.is_torque_enabled)([self.id])[0]
 
-    @compliant.setter
     @do
+    @compliant.setter
     def compliant(self, value):
         if self.compliant == value:
             return
@@ -98,13 +93,12 @@ class Motor:
             self._dxl_io.enable_torque([self.id])
 
     @property
-    @do
     def led(self) -> bool:
         """If the led is on"""
-        return self._dxl_io.is_led_on([self.id])[0]
+        return do(self._dxl_io.is_led_on)([self.id])[0]
 
-    @led.setter
     @do
+    @led.setter
     def led(self, value):
         if self.led == value:
             return
@@ -118,8 +112,8 @@ class Motor:
         """The color of the led"""
         return self._led_color
 
-    @led_color.setter
     @do
+    @led_color.setter
     def led_color(self, value) -> str:
         if value == self._led_color or value not in self.colors:
             return
@@ -131,8 +125,8 @@ class Motor:
         """Joint or wheel"""
         return self._control_mode
 
-    @control_mode.setter
     @do
+    @control_mode.setter
     def control_mode(self, value) -> str:
         if value == self._control_mode or value in ("joint", "wheel"):
             return

@@ -1,5 +1,4 @@
 from imports import bluetooth_socket as bs, analyser as a, solver as s
-from time import sleep
 
 
 CN = s.CubeNotation
@@ -65,10 +64,8 @@ class RubiksCubeSolver:
             self.m2.compliant = False
 
             self.m2.init()
-            sleep(1)
             self.continue_solving()
             self.m1.init()
-            sleep(1)
 
         # Scan cube
         cube_string = self.scan_cube()
