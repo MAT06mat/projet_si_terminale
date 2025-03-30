@@ -33,7 +33,7 @@ class LedColors(StrEnum):
     white = "white"
 
 
-class Motor:
+class MotorBase:
     colors = LedColors
     _led_color = None
     _control_mode = None
@@ -145,12 +145,12 @@ class Motor:
         self._control_mode = value
 
 
-class FlipMotor(Motor):
+class FlipMotor(MotorBase):
     available_pos = [-125, -65, 25, 105]
     default_pos = -125
 
 
-class TurnMotor(Motor):
+class TurnMotor(MotorBase):
     available_pos = [-135, -45, 45, 135]
     default_pos = 45
 

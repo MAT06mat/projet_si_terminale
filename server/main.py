@@ -1,5 +1,5 @@
-from rubiks_cube_solver import RubiksCubeSolver
+from rubiks_cube_solver import RubiksCubeMaster
 
 if __name__ == "__main__":
-    rcm = RubiksCubeSolver()
+    rcm = RubiksCubeMaster()
     rcm.run_server()

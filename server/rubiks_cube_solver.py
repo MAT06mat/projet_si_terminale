@@ -5,7 +5,7 @@ from time import time
 CN = s.CubeNotation
 
 
-class RubiksCubeSolver:
+class RubiksCubeMaster:
     solving = False
     mapping = {face: face for face in s.FACE_ORDER}
     cube_pos = s.FACE_ORDER
@@ -23,8 +23,6 @@ class RubiksCubeSolver:
             motors = Motors()
             self.m1 = motors.get_turn_motor(1)
             self.m2 = motors.get_flip_motor(2)
-            self.m1.compliant = True
-            self.m2.compliant = True
 
             # Init bluetooth
             print("-> Init bluetooth")
@@ -45,8 +43,10 @@ class RubiksCubeSolver:
         print("========= INIT COMPLETED =========")
 
     def run_server(self):
+        # Define fucntions for start and stop the solver in the server
         self.server.public_vars[self.start_solver.__name__] = self.start_solver
         self.server.public_vars[self.stop_solver.__name__] = self.stop_solver
+        # Start the server
         self.server.connect()
 
     def test(self):
@@ -71,9 +71,6 @@ class RubiksCubeSolver:
 
     def solve(self):
         if not self.virtual:
-            self.m1.compliant = False
-            self.m2.compliant = False
-
             self.m2.init()
             self.continue_solving()
             self.m1.init()
@@ -94,23 +91,10 @@ class RubiksCubeSolver:
         for mouvment in solution.split():
             self.mouv(mouvment)
 
-        if not self.virtual:
-            self.m1.compliant = True
-            self.m2.compliant = True
-
     def stop_solver(self, *args):
         self.solving = False
 
-    def scan_cube(self):
-        faces = {}
-        for i in "FLBR":
-            faces[i] = self.scan_face(i)
-            self.turn_cube()
-        self.flip_cube()
-        faces["U"] = self.scan_face("U")
-        self.flip_cube(2)
-        faces["D"] = self.scan_face("D")
-
+    def format_faces(self, faces: dict[list[str]]) -> dict[str]:
         # Create mapping
         faces_map = {}
         for relative_face, face in faces.items():
@@ -124,7 +108,19 @@ class RubiksCubeSolver:
 
         return "".join((faces[face] for face in s.FACE_ORDER))
 
-    def scan_face(self, f) -> dict[str:str]:
+    def scan_cube(self):
+        faces = {}
+        for i in "FLBR":
+            faces[i] = self.scan_face(i)
+            self.turn_cube()
+        self.flip_cube()
+        faces["U"] = self.scan_face("U")
+        self.flip_cube(2)
+        faces["D"] = self.scan_face("D")
+
+        return self.format_faces(faces)
+
+    def scan_face(self, f) -> list[str]:
         """img = self.camera.get_image()
         face = self.anayser.analyse(img)"""
         face = {
@@ -197,5 +193,4 @@ class RubiksCubeSolver:
 
 
 if __name__ == "__main__":
-    rcm = RubiksCubeSolver(virtual=True)
-    rcm.test()
+    RubiksCubeMaster(virtual=True).test()
