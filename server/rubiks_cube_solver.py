@@ -10,27 +10,31 @@ class RubiksCubeMaster:
     mapping = {face: face for face in s.FACE_ORDER}
     cube_pos = s.FACE_ORDER
 
-    def __init__(self, virtual=False):
+    def __init__(self, virtual=False, camera=True):
         self.virtual = virtual
+        self.camera = camera
         self.in_test = False
         print("============ INIT RCM ============")
+        print(f"Virtual : {virtual}")
+        print(f"Camera : {camera}\n")
         if not virtual:
             from camera import Camera
             from motors import Motors
 
             # Init motors
             print("-> Init motors")
-            motors = Motors()
-            self.m1 = motors.get_turn_motor(1)
-            self.m2 = motors.get_flip_motor(2)
+            motors_getter = Motors()
+            self.m1 = motors_getter.get_turn_motor(1)
+            self.m2 = motors_getter.get_flip_motor(2)
 
             # Init bluetooth
             print("-> Init bluetooth")
             self.server = bs.Server()
 
-            # Init camera
-            print("-> Init camera")
-            self.camera = Camera()
+            if camera:
+                # Init camera
+                print("-> Init camera")
+                self.camera = Camera()
 
         # Init cube solver
         print("-> Init cube")
