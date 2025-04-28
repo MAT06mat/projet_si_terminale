@@ -2,6 +2,8 @@ from kivymd.uix.dialog import MDDialog
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivymd.uix.snackbar import MDSnackbar
+from kivy.metrics import dp
+from kivy.core.window import Window
 from kivy.properties import (
     StringProperty,
     ColorProperty,
@@ -76,6 +78,9 @@ class CustomSnackbar(MDSnackbar):
         if CustomSnackbar.current:
             CustomSnackbar.current.dismiss()
         CustomSnackbar.current = self
+        self.snackbar_x = dp(10)
+        self.y = self.snackbar_x
+        self.size_hint_x = (Window.width - (self.snackbar_x * 2)) / Window.width
         self.open()
 
 

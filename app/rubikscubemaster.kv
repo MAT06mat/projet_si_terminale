@@ -1,7 +1,7 @@
 #:import MainMenu screens.main_menu
 #:import LoadMenu screens.load_menu
 #:import SettingsMenu screens.settings_menu
-#:import BluetoothMenu screens.bluetooth_menu
+#:import BluetoothScreenManager screens.bluetooth_screen_manager
 #:import NoTransition kivy.uix.screenmanager.NoTransition
 
 
@@ -25,7 +25,7 @@
                     id: settings_menu
             MDScreen:
                 name: "Bluetooth"
-                BluetoothMenu:
+                BluetoothScreenManager:
                     id: bluetooth_menu
     MDNavigationDrawer:
         id: nav_drawer

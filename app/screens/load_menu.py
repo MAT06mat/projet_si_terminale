@@ -2,9 +2,10 @@ from kivy.properties import StringProperty
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.list import MDListItem
+from kivymd.uix.label import MDLabel
 from kivy.lang import Builder
 from kivy.app import App
-
+from kivy.properties import ListProperty
 
 from backend import cubeSaves
 from ui.rubiks_cube import RubiksCube
@@ -19,20 +20,41 @@ class LoadMenu(MDBoxLayout):
     pass
 
 
+class NoSaveLabel(MDLabel):
+    pass
+
+
 class Saves(MDBoxLayout):
+    _saves = ListProperty([])
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.no_save_label = NoSaveLabel()
         for name in cubeSaves.keys():
             self.add_save(name)
+        if len(self._saves) == 0:
+            self.add_widget(self.no_save_label)
 
-    def add_save(self, name):
-        self.add_widget(Save(name=name))
+    def add_save(self, save):
+        if len(self._saves) == 0 and self.no_save_label.parent:
+            self.remove_widget(self.no_save_label)
+        if isinstance(save, str):
+            if save in self._saves:
+                return
+            self._saves.append(save)
+            self.add_widget(Save(name=save))
+        elif isinstance(save, Save):
+            self._saves.append(save.name)
+            self.add_widget(save)
 
     def remove_save(self, name):
         for children in self.children:
             if isinstance(children, Save):
                 if children.name == name:
+                    self._saves.remove(name)
                     self.remove_widget(children)
+        if len(self._saves) == 0 and not self.no_save_label.parent:
+            self.add_widget(self.no_save_label)
 
 
 class Save(MDListItem):
@@ -86,7 +108,7 @@ class Save(MDListItem):
                     Info(f'Save "{self.name}" is rename to "{new_name}"')
                     self.name = new_name
                     cubeSaves.put(self.name, cube_string)
-                    parent.add_widget(self)
+                    parent.add_save(self)
 
             if new_name in cubeSaves.keys():
                 BooleanPopup(
@@ -109,7 +131,7 @@ class Save(MDListItem):
         def on_delete(rep):
             if rep:
                 cubeSaves.delete(self.name)
-                self.parent.remove_widget(self)
+                self.parent.remove_save(self.name)
                 Info(f'Save "{self.name}" is deleted')
 
         BooleanPopup(

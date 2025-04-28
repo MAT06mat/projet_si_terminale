@@ -3,6 +3,8 @@ import threading, socket
 
 
 class Client(SocketConnection):
+    on_deconnect = None
+
     def __init__(self, address, port=4, request_lenght=512):
         super().__init__(request_lenght)
         self.address = address
@@ -32,6 +34,7 @@ class Client(SocketConnection):
             except (ConnectionAbortedError, OSError) as e:
                 print("Loop stopped")
                 self.connected = False
+                self.on_deconnect()
                 return
             self.process_data(buffer)
 

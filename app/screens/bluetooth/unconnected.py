@@ -1,20 +1,20 @@
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.animation import Animation
-from kivy.properties import BooleanProperty
+from kivy.properties import BooleanProperty, ObjectProperty
 from kivy.metrics import dp
 from kivy.lang import Builder
 from kivy.clock import Clock
 from ui.popup import Error, Info
 
-from imports import bluetooth_socket
 from backend import bluetoothClient
 
-Builder.load_file("screens/bluetooth_menu.kv")
+Builder.load_file("screens/bluetooth/unconnected.kv")
 
 
-class BluetoothMenu(MDBoxLayout):
+class BluetoothUnconnectedScreen(MDBoxLayout):
     loading = BooleanProperty(False)
-    connected = BooleanProperty(False)
+    manager = ObjectProperty(None)
+    text = "[size=30][b]Pour vous connecter[/b][/size]\n\nPour vous connecter au Rubik's Cube Master, allumez votre rcm, activez votre bluetooth, autorisez l'application à accéder au bluetooth, et cliquez sur \"Connection\""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -24,25 +24,8 @@ class BluetoothMenu(MDBoxLayout):
         self.stop_loading = Animation(
             size=(dp(20), 0), opacity=0, d=0.5, t="in_out_cubic"
         )
-        self.anim_opacity_in = Animation(opacity=1, d=0.5, t="in_out_cubic")
-        self.anim_opacity_out = Animation(opacity=0, d=0.5, t="in_out_cubic")
         self.bind(loading=self.on_loading)
-        self.bind(connected=self.on_connected)
         self.client = bluetoothClient
-
-    def opacity_in(self, target):
-        self.anim_opacity_out.stop(target)
-        self.anim_opacity_in.start(target)
-
-    def opacity_out(self, target):
-        self.anim_opacity_in.stop(target)
-        self.anim_opacity_out.start(target)
-
-    def on_connected(self, *args):
-        if self.connected:
-            self.opacity_out(self.ids.connection_layout)
-        else:
-            self.opacity_in(self.ids.connection_layout)
 
     def on_loading(self, *args):
         if self.loading:
@@ -64,14 +47,13 @@ class BluetoothMenu(MDBoxLayout):
     def start_connection(self, *args):
         def on_succes():
             Clock.schedule_once(self.toogle_loading, 0.5)
+            self.manager.current = "connected"
             Info("RCM connecté")
 
         def on_error(e):
-            def c(*args):
-                self.connected = True
-
-            Clock.schedule_once(self.toogle_loading, 0.5)
-            Clock.schedule_once(c, 0.5)  # TODO Remove that
+            # TODO: TO ADD AND REMOVE
+            # Clock.schedule_once(self.toogle_loading, 0.5)
+            on_succes()
             Error(str(e))
 
         self.client.connect(on_succes, on_error)

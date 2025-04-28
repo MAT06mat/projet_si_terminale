@@ -1,0 +1,43 @@
+#:import AppBar ui.app_bar
+
+<BluetoothUnconnectedScreen>:
+    orientation: 'vertical'
+    AppBar:
+        title: "Bluetooth"
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'center'
+        MDBoxLayout:
+            orientation: 'vertical'
+            MDLabel:
+                text: root.text
+                markup: True
+                valign: "center"
+                halign: "center"
+                pos_hint: {'center_x': .5}
+                size_hint_x: None
+                width: dp(400) if root.width > dp(400) else root.width
+                padding: "20dp"
+            MDBoxLayout:
+                orientation: 'vertical'
+                adaptive_size: True
+                spacing: "20dp"
+                pos_hint: {'center_x': .5}
+                MDButton:
+                    id: connection_button
+                    style: "filled"
+                    disabled: root.loading
+                    on_release: None if self.disabled else root.connect_bluetooth()
+                    MDButtonIcon:
+                        icon: "bluetooth"
+                    MDButtonText:
+                        text: "Connection"
+                MDCircularProgressIndicator:
+                    id: progress
+                    size_hint: None, None
+                    size: "20dp", 0
+                    color: self.theme_cls.primaryColor
+                    pos_hint: {"center_x": .5}
+                    opacity: 0
+            Widget:
+                size_hint_y: 0.4
