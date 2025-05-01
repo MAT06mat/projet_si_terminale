@@ -14,7 +14,7 @@ Builder.load_file("screens/bluetooth/unconnected.kv")
 class BluetoothUnconnectedScreen(MDBoxLayout):
     loading = BooleanProperty(False)
     manager = ObjectProperty(None)
-    text = "[size=30][b]Pour vous connecter[/b][/size]\n\nPour vous connecter au Rubik's Cube Master, allumez votre rcm, activez votre bluetooth, autorisez l'application à accéder au bluetooth, et cliquez sur \"Connection\""
+    text = '[size=30][b]To Connect[/b][/size]\n\nTo connect to the Rubik\'s Cube Master, turn on your RCM, enable your Bluetooth, allow the app to access Bluetooth, and click on "Connection".'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -48,7 +48,7 @@ class BluetoothUnconnectedScreen(MDBoxLayout):
         def on_succes():
             Clock.schedule_once(self.toogle_loading, 0.5)
             self.manager.current = "connected"
-            Info("RCM connecté")
+            Info("RCM connected")
 
         def on_error(e):
             # TODO: TO ADD AND REMOVE
