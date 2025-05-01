@@ -38,5 +38,6 @@ class Store(JsonStore):
 
 
 os.makedirs(".cache", exist_ok=True)
+os.makedirs(".cache/saves", exist_ok=True)
 settings = Store(".cache/settings.json")
 cubeSaves = Store(".cache/cube_saves.json")

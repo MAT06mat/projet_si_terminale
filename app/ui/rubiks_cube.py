@@ -292,6 +292,28 @@ class RubiksCube(Widget, solver.Cube):
                 if self._turn_angle == [0, 0, 0]:
                     self._turn_face = None
 
+    def from_string(self, patternstring, reset_angle=True):
+        if reset_angle:
+            self.angle = [pi / 4, pi / 4, 0]
+        return super().from_string(patternstring)
+
+    def export_to_png(self, filename, *args, **kwargs):
+        # Save parameters
+        saved_parameters = (self.angle[:], self.size_hint[:], self.width, self.height)
+        # Apply screen shot angle and size
+        self.angle = [pi / 4, pi / 4, 0]
+        self.size_hint = [None, None]
+        self.width = min(self.size)
+        self.height = min(self.size)
+        # Update cube after changements
+        self.update_cube()
+        # take screenshot
+        r = super().export_to_png(filename, *args, **kwargs)
+        # Undo changements and update cube
+        self.angle, self.size_hint, self.width, self.height = saved_parameters
+        self.update_cube()
+        return r
+
 
 if __name__ == "__main__":
     from kivy.app import App

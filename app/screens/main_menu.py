@@ -3,9 +3,6 @@ from kivy.properties import StringProperty, BooleanProperty
 from kivy.app import App
 from kivy.lang import Builder
 
-from ui.popup import TextInputPopup, BooleanPopup
-
-
 Builder.load_file("screens/main_menu.kv")
 
 

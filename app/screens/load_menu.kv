@@ -2,14 +2,20 @@
 
 <LoadMenu>:
     orientation: 'vertical'
-    AppBar:
-        title: "Saves"
     MDScrollView:
+        size_hint: (1, None)
+        height: root.height - app_bar.height
         do_scroll_x: False
         Saves:
             id: saves
-            orientation: 'vertical'
             adaptive_height: True
+            padding: "10dp"
+            spacing: "10dp"
+    AppBar:
+        id: app_bar
+        top: root.top
+        size_hint: (1, None)
+        title: "Saves"
 
 
 <NoSaveLabel>:
@@ -22,7 +28,22 @@
 
 
 <Save>:
-    MDListItemHeadlineText:
-        text: root.name
-    MDListItemTrailingIcon:
-        icon: "content-save"
+    style: "elevated"
+    size_hint: (.5, None)
+    height: self.width + name_label.height
+    MDBoxLayout:
+        orientation: "vertical"
+        size_hint: (1, 1)
+        FitImage:
+            source: root.image_path
+            size_hint: (1, None)
+            height: root.width
+            radius: root.radius
+        MDLabel:
+            id: name_label
+            text: root.name
+            size_hint: (1, None)
+            adaptive_height: True
+            padding: "10dp"
+            halign: "center"
+            valign: "center"

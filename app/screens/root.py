@@ -1,7 +1,9 @@
+from kivymd.app import MDApp
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.navigationdrawer import MDNavigationDrawerItem
 from kivymd.uix.dialog import MDDialog
 from kivy.properties import BooleanProperty
+import os
 
 from ui.popup import TextInputPopup, BooleanPopup, Info
 from ui.rubiks_cube import RubiksCube
@@ -48,7 +50,10 @@ class Root(MDScreen):
 
             def _save(rep=True):
                 if rep:
-                    cubeSaves.put(save_name, self.cube.to_string())
+                    cube_string = self.cube.to_string()
+                    cubeSaves.put(save_name, cube_string)
+                    image_path = os.path.join(".cache", "saves", f"{cube_string}.png")
+                    self.cube.export_to_png(image_path)
                     self.ids.load_menu.ids.saves.add_save(save_name)
                     self.ids.main_menu.log("New save at '%s'" % save_name)
                     Info(f'Cube successfully saved at "{save_name}"')
