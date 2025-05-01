@@ -55,7 +55,6 @@ class Root(MDScreen):
                     image_path = os.path.join(".cache", "saves", f"{cube_string}.png")
                     self.cube.export_to_png(image_path)
                     self.ids.load_menu.ids.saves.add_save(save_name)
-                    self.ids.main_menu.log("New save at '%s'" % save_name)
                     Info(f'Cube successfully saved at "{save_name}"')
 
             if cubeSaves.exists(save_name):
@@ -64,7 +63,6 @@ class Root(MDScreen):
                     text="This action cannot be reversed",
                     on_answer=_save,
                 )
-                self.ids.main_menu.log("Save '%s' already exist" % save_name)
             else:
                 _save()
 
