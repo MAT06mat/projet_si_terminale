@@ -1,8 +1,17 @@
 from kivy.storage.jsonstore import JsonStore
 from kivy.clock import mainthread
+from kivy.app import App
 from imports import bluetooth_socket as bs
 from threading import Thread
-import os
+import os, sys
+
+
+def get_saves_images_path(cube_string):
+    filename = f"{cube_string}.png"
+    if sys.platform == "win32":
+        return os.path.join(".cache", "saves", filename)
+    os.makedirs(App.get_running_app().user_data_dir, exist_ok=True)
+    return os.path.join(App.get_running_app().user_data_dir, filename)
 
 
 class BluetoothClient(bs.Client):
@@ -37,7 +46,6 @@ class Store(JsonStore):
         return super().get(key)["value"]
 
 
-os.makedirs(".cache", exist_ok=True)
 os.makedirs(".cache/saves", exist_ok=True)
 settings = Store(".cache/settings.json")
 cubeSaves = Store(".cache/cube_saves.json")

@@ -10,7 +10,7 @@ from kivy.properties import ListProperty
 from kivy.core.window import Window
 import os
 
-from backend import cubeSaves
+from backend import cubeSaves, get_saves_images_path
 from ui.rubiks_cube import RubiksCube
 from ui.popup import BooleanPopup, TextInputPopup, Info
 from imports import solver
@@ -35,7 +35,7 @@ class Save(MDCard):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cube_string = cubeSaves.get(self.name)
-        self.image_path = os.path.join(".cache", "saves", f"{self.cube_string}.png")
+        self.image_path = get_saves_images_path(self.cube_string)
 
     def load(self, *args):
         self.menu.dismiss()
