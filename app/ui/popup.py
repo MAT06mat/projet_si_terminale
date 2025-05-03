@@ -92,6 +92,6 @@ class Error(CustomSnackbar):
     text_color = ColorProperty((0, 0, 0, 1))
 
     def __init__(self, text: str, *args, **kwargs):
-        super().__init__(text, *args, **kwargs)
+        super().__init__(str(text), *args, **kwargs)
         self.text_color = self.theme_cls.errorColor
         self.text = f"Error: {text}"

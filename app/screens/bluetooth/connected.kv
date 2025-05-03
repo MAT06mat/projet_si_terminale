@@ -4,9 +4,34 @@
     orientation: 'vertical'
     AppBar:
         title: "Bluetooth"
-    AnchorLayout:
-        anchor_x: 'center'
-        anchor_y: 'center'
-        MDBoxLayout:
-            orientation: 'vertical'
-            adaptive_size: True
+    MDBoxLayout:
+        orientation: 'vertical'
+        adaptive_height: True
+        Widget:
+            size_hint_y: None
+            height: dp(10)
+        MDListItem:
+            on_release: root.scan_cube()
+            MDListItemSupportingText:
+                text: "Scan the cube"
+            MDListItemTrailingIcon:
+                icon: "cube-scan"
+        MDListItem:
+            on_release: root.solve_cube()
+            MDListItemSupportingText:
+                text: "Solve the cube"
+            MDListItemTrailingIcon:
+                icon: "cube-outline"
+        MDListItem:
+            on_release: root.randomize_cube()
+            MDListItemSupportingText:
+                text: "Randomize the cube"
+            MDListItemTrailingIcon:
+                icon: "refresh"
+        MDListItem:
+            on_release: root.bluetooth_deconnect()
+            MDListItemSupportingText:
+                text: "Deconnect"
+            MDListItemTrailingIcon:
+                icon: "bluetooth-off"
+    Widget:
