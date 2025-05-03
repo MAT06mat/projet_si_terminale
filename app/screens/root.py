@@ -67,6 +67,9 @@ class Root(MDScreen):
         TextInputPopup(title="Save name", on_answer=on_save)
 
     def delete_cube(self):
+        if self.cube.is_solve():
+            return
+
         def on_delete(rep):
             if rep:
                 self.cube.from_string(solver.SOLVED_CUBE_STRING)
