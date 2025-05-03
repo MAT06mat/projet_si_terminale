@@ -5,7 +5,7 @@ from screens.bluetooth.unconnected import BluetoothUnconnectedScreen
 from screens.bluetooth.connected import BluetoothConnectedScreen
 from kivy.clock import mainthread
 from backend import bluetoothClient
-from ui.popup import Error, Info
+from ui.popup import Error
 
 
 class BluetoothScreenManager(ScreenManager):
@@ -29,3 +29,10 @@ class BluetoothScreenManager(ScreenManager):
     def on_deconnect(self):
         self.current = "unconnected"
         Error("Bluetooth connection lost")
+
+    def bluetooth_deconnect(self):
+        try:
+            bluetoothClient.deconnect()
+        except Exception as e:
+            Error(e)
+        self.current = "unconnected"
