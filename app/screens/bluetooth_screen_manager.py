@@ -3,6 +3,7 @@ from kivy.uix.screenmanager import NoTransition
 from kivymd.uix.screen import MDScreen
 from screens.bluetooth.unconnected import BluetoothUnconnectedScreen
 from screens.bluetooth.connected import BluetoothConnectedScreen
+from screens.bluetooth.run import BluetoothRunScreen
 from kivy.clock import mainthread
 from backend import bluetoothClient
 from ui.popup import Error
@@ -16,6 +17,7 @@ class BluetoothScreenManager(ScreenManager):
         screens = {
             "unconnected": BluetoothUnconnectedScreen,
             "connected": BluetoothConnectedScreen,
+            "run": BluetoothRunScreen,
         }
 
         for name, widget in screens.items():

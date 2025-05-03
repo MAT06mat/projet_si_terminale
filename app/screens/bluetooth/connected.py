@@ -37,16 +37,14 @@ class BluetoothConnectedScreen(MDBoxLayout):
         self.menu.open()
 
     def solve_cube_from_scan(self):
-        if isinstance(self.menu, MDDropdownMenu):
-            self.menu.dismiss()
+        self.menu.dismiss()
+        self.manager.current = "run"
 
     def solve_cube_from_app(self):
-        if isinstance(self.menu, MDDropdownMenu):
-            self.menu.dismiss()
+        self.menu.dismiss()
 
     def solve_cube_from_save(self):
-        if isinstance(self.menu, MDDropdownMenu):
-            self.menu.dismiss()
+        self.menu.dismiss()
 
     def randomize_cube(self):
         print("Randomize cube")
