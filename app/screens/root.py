@@ -3,7 +3,7 @@ from kivymd.uix.navigationdrawer import MDNavigationDrawerItem
 from kivymd.uix.dialog import MDDialog
 from kivy.properties import BooleanProperty
 
-from ui.popup import TextInputPopup, BooleanPopup, Info
+from ui.popup import TextInputPopup, BooleanPopup, Info, Error
 from ui.rubiks_cube import RubiksCube
 from imports import solver
 from backend import cubeSaves, get_saves_images_path
@@ -32,6 +32,8 @@ class Dialog(MDDialog):
 class Root(MDScreen):
     def push(self, screen):
         self.ids.screen_manager.current = screen
+        if screen == "Settings":
+            Error("[Error 666] Une anomalie démoniaque a corrompu le système.")
         self.toggle_drawer()
 
     def toggle_drawer(self):
