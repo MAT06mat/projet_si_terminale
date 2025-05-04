@@ -84,6 +84,7 @@ class Save(MDCard):
                     self.name = new_name
                     cubeSaves.put(self.name, self.cube_string)
                     parent.add_save(self)
+                    parent.check_images()
 
             if new_name in cubeSaves.keys():
                 BooleanPopup(
@@ -107,7 +108,9 @@ class Save(MDCard):
         def on_delete(rep):
             if rep:
                 cubeSaves.delete(self.name)
-                self.parent.remove_save(self.name)
+                parent = self.parent
+                parent.remove_save(self.name)
+                parent.check_images()
                 Info(f'Save "{self.name}" is deleted')
 
         BooleanPopup(
@@ -143,12 +146,14 @@ class Save(MDCard):
 
 class Saves(MDStackLayout):
     _saves_name = ListProperty([])
+    _images: set[str] = set()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.no_save_label = NoSaveLabel()
         for name in cubeSaves.keys():
             self.add_save(name)
+            self._images.add(cubeSaves.get(name))
         if len(self._saves_name) == 0:
             self.add_widget(self.no_save_label)
 
@@ -171,6 +176,7 @@ class Saves(MDStackLayout):
         elif isinstance(save, Save):
             new_save = save
         self._saves_name.append(new_save.name)
+        self._images.add(new_save.cube_string)
         self.add_widget(new_save)
 
     def remove_save(self, name):
@@ -182,9 +188,13 @@ class Saves(MDStackLayout):
                 if len(self._saves_name) == 0 and not self.no_save_label.parent:
                     self.add_widget(self.no_save_label)
 
-                for s in self._saves:
-                    if s.cube_string == save.cube_string:
-                        return
+    def check_images(self):
+        _images = self._images.copy()
+        for save in self._saves:
+            if save.cube_string in _images:
+                _images.remove(save.cube_string)
 
-                if os.path.exists(save.image_path):
-                    os.remove(save.image_path)
+        for img in _images:
+            if os.path.exists(get_saves_images_path(img)):
+                self._images.remove(img)
+                os.remove(get_saves_images_path(img))

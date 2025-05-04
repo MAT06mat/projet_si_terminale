@@ -10,8 +10,8 @@ def get_saves_images_path(cube_string):
     filename = f"{cube_string}.png"
     if sys.platform == "win32":
         return os.path.join(".cache", "saves", filename)
-    os.makedirs(App.get_running_app().user_data_dir, exist_ok=True)
-    return os.path.join(App.get_running_app().user_data_dir, filename)
+    os.makedirs(App.get_running_app().user_data_dir, "saves", exist_ok=True)
+    return os.path.join(App.get_running_app().user_data_dir, "saves", filename)
 
 
 class BluetoothClient(bs.Client):
