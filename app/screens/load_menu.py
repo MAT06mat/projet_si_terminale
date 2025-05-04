@@ -97,6 +97,7 @@ class Save(MDCard):
         TextInputPopup(
             title="Raname",
             text=f'How do you want to rename "{self.name}" ?',
+            default_text=self.name,
             on_answer=on_rename,
         )
 

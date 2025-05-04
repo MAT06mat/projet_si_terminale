@@ -57,6 +57,7 @@ class BooleanPopup(CustomPopup):
 
 class TextInputPopup(CustomPopup):
     max_characters = NumericProperty(99)
+    default_text = StringProperty("")
 
     @property
     def text_input(self, *args) -> TextInput:
@@ -64,7 +65,7 @@ class TextInputPopup(CustomPopup):
 
     def open(self, *_args, **kwargs):
         self.text_input.focus = True
-        self.text_input.text = ""
+        self.text_input.text = self.default_text
         return super().open(*_args, **kwargs)
 
 
