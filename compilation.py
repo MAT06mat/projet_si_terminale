@@ -17,7 +17,7 @@ class CustomCommands:
 
 class Config:
     name = "rcm"
-    version_file = "app/main.py"
+    version_file = "app/_version.py"
     shared_dir = "/mnt/rcm/"
     updates = ["app", "buildozer.spec"]
     clean_bin = True
