@@ -2,8 +2,6 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.menu import MDDropdownMenu
 from kivy.properties import ObjectProperty
 from kivy.lang import Builder
-from ui.popup import Error
-from backend import bluetoothClient
 
 Builder.load_file("screens/bluetooth/connected.kv")
 
@@ -33,7 +31,9 @@ class BluetoothConnectedScreen(MDBoxLayout):
                 "on_release": self.solve_cube_from_save,
             },
         ]
-        self.menu = MDDropdownMenu(caller=self, items=menu_items, position="center")
+        self.menu = MDDropdownMenu(
+            caller=self.ids.solve_cube, items=menu_items, position="center"
+        )
         self.menu.open()
 
     def solve_cube_from_scan(self):

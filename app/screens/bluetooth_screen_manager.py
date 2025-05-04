@@ -6,7 +6,7 @@ from screens.bluetooth.connected import BluetoothConnectedScreen
 from screens.bluetooth.run import BluetoothRunScreen
 from kivy.clock import mainthread
 from backend import bluetoothClient
-from ui.popup import Error
+from ui.popup import Error, BooleanPopup
 
 
 class BluetoothScreenManager(ScreenManager):
@@ -38,3 +38,14 @@ class BluetoothScreenManager(ScreenManager):
         except Exception as e:
             Error(e)
         self.current = "unconnected"
+
+    def cancel_run(self):
+        def on_answer(rep):
+            if rep:
+                self.current = "connected"
+
+        BooleanPopup(
+            title="Back to the app",
+            text=f"This action will stop the current resolution, are you sure ?",
+            on_answer=on_answer,
+        )

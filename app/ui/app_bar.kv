@@ -4,9 +4,9 @@
     md_bg_color: self.theme_cls.secondaryContainerColor
     MDTopAppBarLeadingButtonContainer:
         MDActionTopAppBarButton:
-            icon: "menu"
+            icon: root.icon
             id: menu_button
-            on_release: app.root.toggle_drawer()
+            on_release: root.when_button_click()
     MDTopAppBarTitle:
         text: root.title
         font_style: "lalezar"

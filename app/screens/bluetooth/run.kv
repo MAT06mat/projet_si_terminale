@@ -1,10 +1,16 @@
+#:import AppBar ui.app_bar
+
 <BluetoothRunScreen>:
     orientation: 'vertical'
-    padding: dp(10)
+
+    AppBar:
+        title: "Bluetooth"
+        icon: "arrow-left"
+        when_button_click: root.manager.cancel_run
 
     Widget:
         size_hint_y: None
-        height: dp(40)
+        height: dp(80)
 
     MDLabel:
         text: root.title
