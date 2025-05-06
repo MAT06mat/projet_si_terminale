@@ -18,7 +18,6 @@ class RubiksCubeMaster:
         print(f"Virtual : {virtual}")
         print(f"Camera : {camera}\n")
         if not virtual:
-            from camera import Camera
             from motors import Motors
 
             # Init motors
@@ -26,6 +25,11 @@ class RubiksCubeMaster:
             motors_getter = Motors()
             self.m1 = motors_getter.get_turn_motor(1)
             self.m2 = motors_getter.get_flip_motor(2)
+
+            self.m2.led = True
+            self.m2.led_color = self.m2.colors.green
+
+            from camera import Camera
 
             # Init bluetooth
             print("-> Init bluetooth")
@@ -50,8 +54,28 @@ class RubiksCubeMaster:
         # Define fucntions for start and stop the solver in the server
         self.server.public_vars[self.start_solver.__name__] = self.start_solver
         self.server.public_vars[self.stop_solver.__name__] = self.stop_solver
-        # Start the server
-        self.server.connect()
+
+        def on_client_connect():
+            self.m2.led_color = self.m2.colors.cyan
+
+        def on_client_deconnect():
+            self.m2.led_color = self.m2.colors.green
+
+        self.server.on_client_connect = on_client_connect
+        self.server.on_client_deconnect = on_client_deconnect
+
+        try:
+            # Start the server
+            self.server.connect()
+            print("Server main loop started, type 'exit' to stop it.")
+            while self.server.is_server_connected:
+                i = input("> ")
+                if i == "exit":
+                    self.m2.led = False
+                    break
+        finally:
+            if not self.virtual:
+                self.m2.led_color = self.m2.colors.red
 
     def test(self):
         self.in_test = True
@@ -67,11 +91,13 @@ class RubiksCubeMaster:
 
     def start_solver(self, *args):
         self.solving = True
+        self.m2.led_color = self.m2.colors.yellow
         try:
             self.solve()
         except Exception as e:
             print(e)
         self.solving = False
+        self.m2.led_color = self.m2.colors.blue
 
     def solve(self):
         if not self.virtual:

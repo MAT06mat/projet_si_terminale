@@ -12,6 +12,12 @@ class Server(SocketConnection):
         self.client = None
         self.is_server_connected = False
 
+    def on_client_connect(self):
+        pass
+
+    def on_client_deconnect(self):
+        pass
+
     def loop(self):
         print("Loop started")
         buffer = b""
@@ -20,6 +26,7 @@ class Server(SocketConnection):
                 # Accept client connection
                 if not self.client:
                     self.client, addr = self.socket.accept()
+                    self.on_client_connect()
                     print("Client socket accepted as", addr)
                 # Receive data from client
                 data = self.recv(self.request_lenght * 8)
@@ -29,6 +36,7 @@ class Server(SocketConnection):
                 if self.is_server_connected:
                     print("Client disconnected")
                     self.client = None
+                    self.on_client_deconnect()
                     continue
                 print("Loop stopped")
                 return
