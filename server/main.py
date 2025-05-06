@@ -1,4 +1,4 @@
-from rubiks_cube_solver import RubiksCubeMaster
+from server.components.rubiks_cube_solver import RubiksCubeMaster
 
 if __name__ == "__main__":
     rcm = RubiksCubeMaster()

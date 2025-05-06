@@ -18,7 +18,7 @@ class RubiksCubeMaster:
         print(f"Virtual : {virtual}")
         print(f"Camera : {camera}\n")
         if not virtual:
-            from motors import Motors
+            from server.components.motors import Motors
 
             # Init motors
             print("-> Init motors")
@@ -29,7 +29,7 @@ class RubiksCubeMaster:
             self.m2.led = True
             self.m2.led_color = self.m2.colors.green
 
-            from camera import Camera
+            from server.components.camera import Camera
 
             # Init bluetooth
             print("-> Init bluetooth")
