@@ -44,8 +44,8 @@ class MotorBase:
         self._dxl_io: Motors = dxl_io
         self.id = id
         self._pos = self.default_pos
-        self.led = False
         self.led_color = self.colors.white
+        self.led = False
         self.control_mode = "joint"
 
     def init(self, _pos: int = None):
@@ -82,72 +82,69 @@ class MotorBase:
         """If compliant, the torque is disable"""
         return not do(self._dxl_io.is_torque_enabled)([self.id])[0]
 
-    @do
     @compliant.setter
     def compliant(self, value):
         if self.compliant == value:
             return
         if value:
-            self._dxl_io.disable_torque([self.id])
+            do(self._dxl_io.disable_torque)([self.id])
         else:
-            self._dxl_io.enable_torque([self.id])
+            do(self._dxl_io.enable_torque)([self.id])
 
     @property
     def led(self) -> bool:
         """If the led is on"""
         return do(self._dxl_io.is_led_on)([self.id])[0]
 
-    @do
     @led.setter
     def led(self, value):
         if self.led == value:
             return
         if value:
-            self._dxl_io.switch_led_on([self.id])
+            do(self._dxl_io.switch_led_on)([self.id])
         else:
-            self._dxl_io.switch_led_off([self.id])
+            do(self._dxl_io.switch_led_off)([self.id])
 
     @property
     def led_color(self) -> str:
         """The color of the led"""
         return self._led_color
 
-    @do
     @led_color.setter
     def led_color(self, value) -> str:
         if value == self._led_color or value not in self.colors:
             return
+        print("Color of", self.id, "is now", value)
         self._led_color = value
-        self._dxl_io.set_LED_color({self.id: value})
+        do(self._dxl_io.set_LED_color)({self.id: value})
 
     @property
     def control_mode(self) -> str:
         """Joint or wheel"""
         return self._control_mode
 
-    @do
     @control_mode.setter
     def control_mode(self, value) -> str:
         if value == self._control_mode or value in ("joint", "wheel"):
             return
         if self.compliant:
             if value == "joint":
-                self._dxl_io.set_wheel_mode([self.id])
+                do(self._dxl_io.set_wheel_mode)([self.id])
             else:
-                self._dxl_io.set_joint_mode([self.id])
+                do(self._dxl_io.set_joint_mode)([self.id])
         else:
             self.compliant = True
             if value == "joint":
-                self._dxl_io.set_wheel_mode([self.id])
+                do(self._dxl_io.set_wheel_mode)([self.id])
             else:
-                self._dxl_io.set_joint_mode([self.id])
+                do(self._dxl_io.set_joint_mode)([self.id])
             self.compliant = False
         self._control_mode = value
 
 
 class FlipMotor(MotorBase):
-    available_pos = [-125, -65, 25, 105]
-    default_pos = -125
+    available_pos = [-180, 0, 135]
+    default_pos = -180
 
 
 class TurnMotor(MotorBase):

@@ -1,13 +1,16 @@
 from components.rubiks_cube_solver import RubiksCubeMaster
-from time import time
+from time import sleep
 
 
 def main():
     rcm = RubiksCubeMaster()
     print("RCM Init")
-    time(2)
-    rcm.m1.init()
-    print("m1 init")
-    time(2)
+    sleep(1)
     rcm.m2.init()
     print("m2 init")
+    rcm.solving = True
+    rcm.flip_cube(5)
+
+
+if __name__ == "__main__":
+    main()

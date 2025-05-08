@@ -195,10 +195,11 @@ class RubiksCubeMaster:
         num %= 4
         for i in range(num):
             self.cube_pos = "".join(self.cube_pos[i] for i in [5, 1, 0, 2, 4, 3])
-        # Motors flip cube
-        if not self.virtual:
-            self.m2.pos = 105
-            self.m2.pos = 25
+            # Motors flip cube
+            if not self.virtual:
+                self.m2.pos = 0
+                self.m2.pos = 135
+                self.m2.pos = 0
 
     def turn_cube(self, num=1):
         self.continue_solving()
