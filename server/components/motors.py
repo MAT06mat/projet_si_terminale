@@ -48,12 +48,11 @@ class MotorBase:
         self.led = False
         self.control_mode = "joint"
 
-    def init(self, _pos: int = None):
-        if _pos in self.available_pos:
-            self._pos = _pos
+    def init(self):
+        pos = self._dxl_io.get_pos([self.id])[0]
+        self._pos = min((abs(pos - p), p) for p in self.available_pos)[1]
         self.led = False
         self.control_mode = "joint"
-        self._dxl_io.set_pos(self.id, self._pos)
 
     def turn(self, number: int = 1):
         if self._pos in self.available_pos:
@@ -143,8 +142,8 @@ class MotorBase:
 
 
 class FlipMotor(MotorBase):
-    available_pos = [-180, 0, 135]
-    default_pos = -180
+    available_pos = [-160, -10, 160]
+    default_pos = -160
 
 
 class TurnMotor(MotorBase):

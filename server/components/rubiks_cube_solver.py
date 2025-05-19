@@ -197,9 +197,9 @@ class RubiksCubeMaster:
             self.cube_pos = "".join(self.cube_pos[i] for i in [5, 1, 0, 2, 4, 3])
             # Motors flip cube
             if not self.virtual:
-                self.m2.pos = 0
-                self.m2.pos = 135
-                self.m2.pos = 0
+                self.m2.pos = -10
+                self.m2.pos = 160
+                self.m2.pos = -10
 
     def turn_cube(self, num=1):
         self.continue_solving()
@@ -208,9 +208,9 @@ class RubiksCubeMaster:
             self.cube_pos = "".join(self.cube_pos[i] for i in [0, 2, 4, 3, 5, 1])
         # Motors turn cube
         if not self.virtual:
-            self.m2.pos = -65
+            self.m2.pos = -160
             self.m1.turn(num)
-            self.m2.pos = 25
+            self.m2.pos = -10
 
     def turn_face(self, num=1):
         self.continue_solving()
@@ -219,7 +219,7 @@ class RubiksCubeMaster:
             self.cube.turn(self.cube_pos[3])
         # Motors turn face
         if not self.virtual:
-            self.m2.pos = 25
+            self.m2.pos = -10
             self.m1.turn(num)
 
 
