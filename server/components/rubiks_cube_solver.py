@@ -124,7 +124,7 @@ class RubiksCubeMaster:
     def stop_solver(self, *args):
         self.solving = False
 
-    def format_faces(self, faces: dict[list[str]]) -> dict[str]:
+    def format_faces(self, faces: dict[list[str]]) -> str:
         # Create mapping
         faces_map = {}
         for relative_face, face in faces.items():

@@ -9,7 +9,12 @@ class Client(SocketConnection):
         super().__init__(request_lenght)
         self.address = address
         self.port = port
+        self.socket = None
+        self.recv_stream = None
+        self.send_stream = None
+        self.connected = False
 
+    def create_socket(self):
         # Initialize socket and connection variables
         if hasattr(socket, "AF_BLUETOOTH"):
             self.socket = socket.socket(
@@ -19,8 +24,6 @@ class Client(SocketConnection):
             self.socket = None
             self.recv_stream = None
             self.send_stream = None
-
-        self.connected = False
 
     def loop(self):
         print("Loop started")
@@ -49,6 +52,8 @@ class Client(SocketConnection):
             pass
 
     def connect(self):
+        if not self.socket:
+            self.create_socket()
         # Connect to server
         self.socket.connect((self.address, self.port))
         print("client-connected")
@@ -59,3 +64,4 @@ class Client(SocketConnection):
         # Disconnect from server
         self.connected = False
         self.socket.close()
+        self.socket = None
